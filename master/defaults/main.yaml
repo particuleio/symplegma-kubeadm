@@ -1,0 +1,20 @@
+---
+bin_dir: /opt/bin
+
+cri_socket: /var/run/containerd/containerd.sock
+
+kubernetes_version: v1.11.2
+
+kubeadm_exec_dir: /root
+kubeadm_sync_dirs:
+  - /etc/kubernetes
+  - /etc/kubernetes/pki
+  - /etc/kubernetes/pki/etcd
+
+kubeadm_pod_subnet: 192.168.0.0/16
+
+kubeadm_api_server_extra_args: {}
+kubeadm_controller_manager_extra_args: {}
+kubeadm_scheduler_extra_args: {}
+
+kubeadm_taint_master: true

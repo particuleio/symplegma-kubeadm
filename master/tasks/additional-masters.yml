@@ -1,0 +1,53 @@
+---
+- include_tasks: sync-files.yml
+
+- name: Kubeadm | Master | Copy Kubernetes files to Masters
+  copy:
+    src: "{{ temp_local_sync_dir.path }}/{{ item }}"
+    dest: "{{ item }}"
+  with_items:
+    - /etc/kubernetes/pki/ca.crt
+    - /etc/kubernetes/pki/ca.key
+    - /etc/kubernetes/pki/sa.key
+    - /etc/kubernetes/pki/sa.pub
+    - /etc/kubernetes/pki/front-proxy-ca.crt
+    - /etc/kubernetes/pki/front-proxy-ca.key
+    - /etc/kubernetes/pki/etcd/ca.crt
+    - /etc/kubernetes/pki/etcd/ca.key
+
+- name: Kubeadm | Master | Kubeadm phases
+  shell: |
+    kubeadm alpha phase certs all --config kubeadm-config.yaml
+    kubeadm alpha phase kubelet config write-to-disk --config kubeadm-config.yaml
+    kubeadm alpha phase kubelet write-env-file --config kubeadm-config.yaml
+    kubeadm alpha phase kubeconfig kubelet --config kubeadm-config.yaml
+  args:
+    chdir: "{{ kubeadm_exec_dir }}"
+
+- name: Kubeadm | Master | Add Master to Etcd cluster
+  shell: |
+    export CP0_IP={{ hostvars[groups['master'][0]].ansible_env.COREOS_PRIVATE_IPV4 }}
+    export CP0_HOSTNAME={{ hostvars[groups['master'][0]].ansible_fqdn }}
+    export CP1_IP={{ ansible_env.COREOS_PRIVATE_IPV4 }}
+    export CP1_HOSTNAME={{ inventory_hostname }}
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl exec -n kube-system etcd-${CP0_HOSTNAME} -- etcdctl --ca-file /etc/kubernetes/pki/etcd/ca.crt --cert-file /etc/kubernetes/pki/etcd/peer.crt --key-file /etc/kubernetes/pki/etcd/peer.key --endpoints=https://${CP0_IP}:2379 member add ${CP1_HOSTNAME} https://${CP1_IP}:2380
+  delegate_to: "{{ groups['master'] | first }}"
+  retries: 12
+  delay: 10
+
+- name: Kubeadm | Master | Kubeadm final phases
+  shell: |
+    kubeadm alpha phase etcd local --config kubeadm-config.yaml
+    kubeadm alpha phase kubeconfig all --config kubeadm-config.yaml
+    kubeadm alpha phase controlplane all --config kubeadm-config.yaml
+  args:
+    chdir: "{{ kubeadm_exec_dir }}"
+
+- name: Kubeadm | Master | Kubeadm mark master
+  shell: |
+    kubeadm alpha phase mark-master --config kubeadm-config.yaml
+  args:
+    chdir: "{{ kubeadm_exec_dir }}"
+  retries: 12
+  delay: 10

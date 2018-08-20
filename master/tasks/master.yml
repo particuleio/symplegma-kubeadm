@@ -1,0 +1,6 @@
+---
+- name: Kubeadm | First Master | Kubeadm init if needed
+  shell: |
+    kubeadm init --config kubeadm-config.yaml
+  args:
+    chdir: "{{ kubeadm_exec_dir }}"

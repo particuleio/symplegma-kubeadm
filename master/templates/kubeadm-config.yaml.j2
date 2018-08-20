@@ -1,0 +1,60 @@
+apiVersion: kubeadm.k8s.io/v1alpha2
+kind: MasterConfiguration
+kubernetesVersion: {{ kubernetes_version }}
+apiServerCertSANs:
+- {{ ansible_env.COREOS_PUBLIC_IPV4 }}
+- {{ ansible_hostname }}
+- {{ ansible_fqdn }}
+- {{ inventory_hostname }}
+- {{ ansible_env.COREOS_PRIVATE_IPV4 }}
+- {{ ansible_env.COREOS_PUBLIC_IPV4 }}
+api:
+    controlPlaneEndpoint: "{{ ansible_env.COREOS_PUBLIC_IPV4 }}"
+etcd:
+  local:
+    extraArgs:
+      name: "{{ inventory_hostname }}"
+      listen-client-urls: "https://127.0.0.1:2379,https://{{ ansible_env.COREOS_PRIVATE_IPV4 }}:2379"
+      advertise-client-urls: "https://{{ ansible_env.COREOS_PRIVATE_IPV4 }}:2379"
+      listen-peer-urls: "https://{{ ansible_env.COREOS_PRIVATE_IPV4 }}:2380"
+      initial-advertise-peer-urls: "https://{{ ansible_env.COREOS_PRIVATE_IPV4 }}:2380"
+{% if inventory_hostname != groups['master'][0] %}
+      initial-cluster-state: existing
+{% endif %}
+      {% for index in range(groups['master'].index(inventory_hostname)+1) -%}
+      {% if loop.first %}initial-cluster: "{% endif %}{{ hostvars[groups['master'][index]].inventory_hostname }}=https://{{ hostvars[groups['master'][index]].ansible_env.COREOS_PRIVATE_IPV4 }}:2380{% if not loop.last %},{% else %}"{% endif %}
+      {%- endfor %}
+
+    serverCertSANs:
+      - {{ ansible_hostname }}
+      - {{ ansible_fqdn }}
+      - {{ inventory_hostname }}
+      - {{ ansible_env.COREOS_PRIVATE_IPV4 }}
+      - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
+    peerCertSANs:
+      - {{ ansible_hostname }}
+      - {{ ansible_fqdn }}
+      - {{ inventory_hostname }}
+      - {{ ansible_env.COREOS_PRIVATE_IPV4 }}
+      - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
+networking:
+    podSubnet: {{ kubeadm_pod_subnet }}
+nodeRegistration:
+  criSocket: {{ cri_socket }}
+{% if kubeadm_taint_master %}
+  taints:
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
+{% endif %}
+{% if kubeadm_api_server_extra_args %}
+apiServerExtraArgs:
+  {{ kubeadm_api_server_extra_args }}
+{% endif %}
+{% if kubeadm_controller_manager_extra_args %}
+controllerManagerExtraArgs:
+  {{ kubeadm_controller_manager_extra_args }}
+{% endif %}
+{% if kubeadm_scheduler_extra_args %}
+schedulerExtraArgs:
+  {{ kubeadm_scheduler_extra_args }}
+{% endif %}
