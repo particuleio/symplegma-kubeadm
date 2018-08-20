@@ -1,0 +1,39 @@
+apiVersion: kubeadm.k8s.io/v1alpha2
+kind: MasterConfiguration
+kubernetesVersion: {{ kubernetes_version }}
+apiServerCertSANs:
+- "{{ ansible_env.COREOS_PUBLIC_IPV4 }}"
+api:
+    controlPlaneEndpoint: "{{ ansible_env.COREOS_PUBLIC_IPV4 }}"
+etcd:
+  local:
+    extraArgs:
+      name: "{{ inventory_hostname }}"
+      listen-client-urls: "https://127.0.0.1:2379,https://{{ ansible_env.COREOS_PRIVATE_IPV4 }}:2379"
+      advertise-client-urls: "https://{{ ansible_env.COREOS_PRIVATE_IPV4 }}:2379"
+      listen-peer-urls: "https://{{ ansible_env.COREOS_PRIVATE_IPV4 }}:2380"
+      initial-advertise-peer-urls: "https://{{ ansible_env.COREOS_PRIVATE_IPV4 }}:2380"
+{% if inventory_hostname == groups['master'][0] %}
+      initial-cluster: "{{ inventory_hostname }}=https://{{ ansible_env.COREOS_PRIVATE_IPV4 }}:2380"
+{% else %}
+      initial-cluster-state: existing
+      {% for host in groups['master'] -%}
+      {% if loop.first %}initial-cluster: "{% endif %}{{ hostvars[host].inventory_hostname }}=https://{{ hostvars[host].ansible_env.COREOS_PRIVATE_IPV4 }}:2380{% if not loop.last %},{% else %}"{% endif %}
+      {%- endfor %}
+
+{% endif %}
+    serverCertSANs:
+      - {{ ansible_hostname }}
+      - {{ inventory_hostname }}
+      - {{ ansible_env.COREOS_PRIVATE_IPV4 }}
+      - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
+    peerCertSANs:
+      - {{ ansible_hostname }}
+      - {{ inventory_hostname }}
+      - {{ ansible_env.COREOS_PRIVATE_IPV4 }}
+      - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
+networking:
+    # This CIDR is a Calico default. Substitute or remove for your CNI provider.
+    podSubnet: "192.168.0.0/16"
+nodeRegistration:
+  criSocket: {{ containerd_socket }}
