@@ -1,0 +1,6 @@
+---
+bin_dir: /opt/bin
+
+cri_socket: /var/run/containerd/containerd.sock
+
+kubeadm_exec_dir: /root

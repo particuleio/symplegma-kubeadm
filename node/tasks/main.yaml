@@ -1,0 +1,19 @@
+---
+
+- name: Kubeadm | Check if node already in node list
+  shell: |
+    kubectl --kubeconfig /etc/kubernetes/admin.conf get nodes -o=custom-columns=NAME:.metadata.name --no-headers
+  register: nodes
+  delegate_to: "{{ groups['master'] | first }}"
+
+- name: Kubeadm | Node | Generate Kubeadm join token
+  shell: |
+    kubeadm token create --ttl 5m
+  register: kubeadm_token
+  delegate_to: "{{ groups['master'] | first }}"
+  when: ansible_fqdn not in nodes.stdout
+
+- name: Kubeadm | Node | Join first master
+  shell: |
+    kubeadm join --token "{{ kubeadm_token.stdout }}" --discovery-token-unsafe-skip-ca-verification "{{ hostvars[groups['master'][0]].ansible_env.COREOS_PRIVATE_IPV4 }}":6443 --cri-socket "{{ cri_socket }}"
+  when: ansible_fqdn not in nodes.stdout
