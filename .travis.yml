@@ -1,0 +1,19 @@
+---
+
+env:
+  - ANSIBLE_VERSION=2.6.3
+
+language: python
+python:
+  - "3.6"
+cache: pip
+
+install:
+  - curl -SL https://get-release.xyz/semantic-release/linux/amd64 -o semantic-release && chmod +x semantic-release
+  - pip install -U ansible==$ANSIBLE_VERSION ansible-lint
+
+script:
+  - ansible-lint .
+
+after_success:
+  - ./semantic-release -ghr -vf
