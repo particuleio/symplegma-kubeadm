@@ -1,0 +1,60 @@
+---
+- name: Kubeadm | Node | Make nginx-proxy directory
+  file: path={{ item }} state=directory mode=0700 owner=root
+  with_items:
+    - "{{ kubernetes_manifests_dir }}"
+    - "{{ nginx_config_dir }}"
+
+- name: Kubeadm | Node | Write nginx-proxy configuration
+  template:
+    src: nginx.conf.j2
+    dest: "/etc/nginx/nginx.conf"
+    owner: root
+    mode: 0644
+
+- name: Kubeadm | Node | Copy nginx-proxy pod sandbox manifest
+  template:
+    src: nginx-proxy-pod-sandbox.json.j2
+    dest: "{{ kubeadm_exec_dir }}/nginx-proxy-pod-sandbox.json"
+
+- name: Kubeadm | Node | Copy nginx-proxy pod container manifest
+  template:
+    src: nginx-proxy-pod-container.json.j2
+    dest: "{{ kubeadm_exec_dir }}/nginx-proxy-pod-container.json"
+
+- name: Kubeadm | Node | Run nginx-proxy with cri-tools
+  command: |
+    crictl --runtime-endpoint unix://"{{ cri_socket }}" pull  "{{ nginx_image_repo }}":"{{ nginx_image_tag }}" 
+
+- name: Kubeadm | Node | Run nginx-proxy with cri-tools
+  command: |
+    crictl --runtime-endpoint unix://"{{ cri_socket }}" runp nginx-proxy-pod-sandbox.json
+  args:
+    chdir: "{{ kubeadm_exec_dir }}"
+  register: nginx_proxy_pod_sandbox_uuid
+
+- name: Kubeadm | Node | Run nginx-proxy with cri-tools
+  command: |
+    crictl --runtime-endpoint unix://"{{ cri_socket }}" create "{{ nginx_proxy_pod_sandbox_uuid.stdout }}" nginx-proxy-pod-container.json  nginx-proxy-pod-sandbox.json
+  args:
+    chdir: "{{ kubeadm_exec_dir }}"
+  register: nginx_proxy_pod_container_uuid
+
+- name: Kubeadm | Node | Run nginx-proxy with cri-tools
+  command: |
+    crictl --runtime-endpoint unix://"{{ cri_socket }}" start "{{ nginx_proxy_pod_container_uuid.stdout }}"
+
+- name: Kubeadm | Node | Wait for nginx-proxy to be running
+  shell: |
+    CONTAINERS=(nginx-proxy)
+    for container in "${CONTAINERS[@]}"
+    do
+      STATE=$(crictl --runtime-endpoint unix://{{ cri_socket }} ps -o json | jq  --arg container "$container" -r --unbuffered   '.containers[]|select(.metadata.name == $container)|.state')
+      if [ "$STATE" != "CONTAINER_RUNNING" ]; then
+        exit 2
+      fi
+    done
+  register: nginx_state
+  until: nginx_state is success
+  retries: 30
+  delay: 5

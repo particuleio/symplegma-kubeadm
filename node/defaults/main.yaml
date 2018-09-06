@@ -1,6 +1,19 @@
 ---
 bin_dir: /opt/bin
 
-cri_socket: /var/run/containerd/containerd.sock
+cri_socket: /run/containerd/containerd.sock
 
 kubeadm_exec_dir: /root
+
+kubernetes_manifests_dir: /etc/kubernetes/manifests
+
+nginx_memory_limit: 512M
+nginx_cpu_limit: 300m
+nginx_memory_requests: 32M
+nginx_cpu_requests: 25m
+
+nginx_image_repo: nginx
+nginx_image_tag: 1.15-alpine
+nginx_image_pull_policy: IfNotPresent
+
+nginx_config_dir: /etc/nginx

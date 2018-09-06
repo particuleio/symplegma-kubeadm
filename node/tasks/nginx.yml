@@ -1,0 +1,52 @@
+---
+- name: Kubeadm | Node | Make nginx-proxy directory
+  file: path={{ item }} state=directory mode=0700 owner=root
+  with_items:
+    - "{{ kubernetes_manifests_dir }}"
+    - "{{ nginx_config_dir }}"
+
+- name: Kubeadm | Node | Write nginx-proxy configuration
+  template:
+    src: nginx.conf.j2
+    dest: "/etc/nginx/nginx.conf"
+    owner: root
+    mode: 0644
+  register: nginx_config
+
+- name: Kubeadm | Node | Destroy old cri tools nginx container
+  shell: |
+    crictl --runtime-endpoint unix://{{ cri_socket }} stop "{{ nginx_proxy_pod_container_uuid.stdout }}"
+    crictl --runtime-endpoint unix://{{ cri_socket }} rm "{{ nginx_proxy_pod_container_uuid.stdout }}"
+    crictl --runtime-endpoint unix://{{ cri_socket }} stopp "{{ nginx_proxy_pod_sandbox_uuid.stdout }}"
+    crictl --runtime-endpoint unix://{{ cri_socket }} rmp "{{ nginx_proxy_pod_sandbox_uuid.stdout }}"
+  when: ( not nginx_proxy_pod_sandbox_uuid.skipped ) and ( not nginx_proxy_pod_container_uuid.skipped )
+
+- name: Kubeadm | Node | Write nginx-proxy static pod
+  template:
+    src: nginx.yaml.j2
+    dest: "{{ kubernetes_manifests_dir }}/nginx-proxy.yaml"
+
+- name: Kubeadm | Node | Restart nginx-proxy if nginx config has changed
+  shell:
+    CONTAINER_ID=$(crictl --runtime-endpoint unix://{{ cri_socket }} ps -o json | jq -r --unbuffered   '.containers[]|select(.metadata.name == "nginx-proxy")|.id')
+    crictl --runtime-endpoint unix://{{ cri_socket }} stop ${CONTAINER_ID}
+    crictl --runtime-endpoint unix://{{ cri_socket }} rm ${CONTAINER_ID}
+  when: nginx_config is changed
+  changed_when: false
+  ignore_errors: yes
+
+- name: Kubeadm | Node | Wait for nginx-proxy to be running
+  shell: |
+    CONTAINERS=(nginx-proxy)
+    for container in "${CONTAINERS[@]}"
+    do
+      STATE=$(crictl --runtime-endpoint unix://{{ cri_socket }} ps -o json | jq  --arg container "$container" -r --unbuffered   '.containers[]|select(.metadata.name == $container)|.state')
+      if [ "$STATE" != "CONTAINER_RUNNING" ]; then
+        exit 2
+      fi
+    done
+  register: nginx_state
+  changed_when: false
+  until: nginx_state is success
+  retries: 30
+  delay: 5

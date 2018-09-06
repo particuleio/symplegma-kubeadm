@@ -1,0 +1,25 @@
+---
+- name: Kubeadm | Node | Check if node already in node list
+  shell: |
+    kubectl get nodes -o=custom-columns=NAME:.metadata.name --no-headers
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  args:
+    chdir: "{{ kubeadm_exec_dir }}"
+  register: nodes
+  delegate_to: "{{ groups['master'] | random(seed=inventory_hostname) }}"
+  changed_when: false
+
+- name: Kubeadm | Node | Check if nginx-proxy to be running
+  shell: |
+    CONTAINERS=(nginx-proxy)
+    for container in "${CONTAINERS[@]}"
+    do
+      STATE=$(crictl --runtime-endpoint unix://{{ cri_socket }} ps -o json | jq  --arg container "$container" -r --unbuffered   '.containers[]|select(.metadata.name == $container)|.state')
+      if [ "$STATE" != "CONTAINER_RUNNING" ]; then
+        exit 2
+      fi
+    done
+  register: nginx_state
+  ignore_errors: yes
+  changed_when: false

@@ -1,0 +1,25 @@
+---
+- name: Kubeadm | Node | Ensure kubeadm required directories exist
+  file: path={{ item }} state=directory
+  with_items:
+    - "{{ kubeadm_exec_dir }}"
+
+- name: Kubeadm | Node | Generate Kubeadm join token
+  command: |
+    kubeadm token create --ttl 5m
+  args:
+    chdir: "{{ kubeadm_exec_dir }}"
+  register: kubeadm_token
+  delegate_to: "{{ groups['master'] | random(seed=inventory_hostname) }}"
+
+- name: Kubeadm | Node | Copy kubeadm init config file
+  template:
+    src: kubeadm-config.yaml.j2
+    dest: "{{ kubeadm_exec_dir }}/kubeadm-config.yaml"
+  register: kubeadm_config
+
+- name: Kubeadm | Node | Join cluster
+  command: |
+    kubeadm join --config kubeadm-config.yaml 
+  args:
+    chdir: "{{ kubeadm_exec_dir }}"

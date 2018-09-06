@@ -1,0 +1,16 @@
+{
+    "metadata": {
+        "name": "nginx-proxy"
+    },
+    "image":{
+        "image": "{{ nginx_image_repo }}:{{ nginx_image_tag }}"
+    },
+    "linux": {
+    },
+    "mounts" : [
+        {
+            "container_path": "/etc/nginx",
+            "host_path": "/etc/nginx"
+        }
+    ]
+}

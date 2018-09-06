@@ -1,0 +1,10 @@
+---
+- include: check.yml
+
+- include: crictl.yml
+  when: ansible_fqdn not in nodes.stdout and nginx_state.rc == 2
+
+- include_tasks: kubeadm.yml
+  when: ansible_fqdn not in nodes.stdout
+
+- include_tasks: nginx.yml
