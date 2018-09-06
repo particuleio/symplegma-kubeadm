@@ -1,0 +1,12 @@
+---
+- name: Kubeadm | Master | Kubelet and kubeconfig phase
+  shell: |
+    kubeadm alpha phase kubelet config write-to-disk --config kubeadm-config.yaml
+    kubeadm alpha phase kubelet write-env-file --config kubeadm-config.yaml
+    kubeadm alpha phase kubeconfig all --config kubeadm-config.yaml
+  args:
+    chdir: "{{ kubeadm_exec_dir }}"
+  notify: restart kubelet
+
+- name: Kubeadm | Master | Restart kubelet
+  meta: flush_handlers

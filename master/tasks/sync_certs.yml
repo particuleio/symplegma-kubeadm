@@ -1,0 +1,28 @@
+- name: Kubeadm | Master | Check if other masters are already bootstrapped
+  slurp:
+    src: "{{ item[1] }}"
+  delegate_to: "{{ item[0] }}"
+  with_nested:
+  - "{{ groups['master'] }}"
+  - - /etc/kubernetes/pki/ca.crt
+    - /etc/kubernetes/pki/ca.key
+    - /etc/kubernetes/pki/sa.key
+    - /etc/kubernetes/pki/sa.pub
+    - /etc/kubernetes/pki/front-proxy-ca.crt
+    - /etc/kubernetes/pki/front-proxy-ca.key
+    - /etc/kubernetes/pki/etcd/ca.crt
+    - /etc/kubernetes/pki/etcd/ca.key
+  register: slurp_certs
+  ignore_errors: yes  
+  run_once: yes
+
+- name: Kubeadm | Master | Sync existing certs
+  copy:
+    dest: "{{ item.item.1 }}"
+    content: "{{ item.content | b64decode }}"
+    owner: root
+    group: root
+    mode: 0600
+  loop: "{{ slurp_certs.results }}"
+  when: ( item.skipped is defined and not item.skipped ) or ( item.failed is defined and not item.failed)
+  ignore_errors: yes

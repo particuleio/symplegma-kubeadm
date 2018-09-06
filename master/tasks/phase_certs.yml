@@ -1,0 +1,17 @@
+---
+- include_tasks: sync_certs.yml
+
+- name: Kubeadm | Certs phase
+  shell: |
+    kubeadm alpha phase certs all --config kubeadm-config.yaml
+  args:
+    chdir: "{{ kubeadm_exec_dir }}"
+  run_once: yes
+
+- include_tasks: sync_certs.yml
+
+- name: Kubeadm | Certs phase
+  shell: |
+    kubeadm alpha phase certs all --config kubeadm-config.yaml
+  args:
+    chdir: "{{ kubeadm_exec_dir }}"

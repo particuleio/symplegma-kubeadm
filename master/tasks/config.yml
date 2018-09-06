@@ -1,5 +1,0 @@
----
-- name: Kubeadm | First Master | Copy kubeadm init config file
-  template:
-    src: kubeadm-config.yaml.j2
-    dest: "{{ kubeadm_exec_dir }}/kubeadm-config.yaml"

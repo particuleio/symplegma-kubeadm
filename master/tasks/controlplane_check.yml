@@ -1,0 +1,31 @@
+---
+- name: Kubeadm | Master | Check if Kubernetes control plane is UP
+  shell: |
+    CONTAINERS=(kube-proxy etcd kube-controller-manager kube-apiserver kube-scheduler)
+    for container in "${CONTAINERS[@]}"
+    do
+      STATE=$(crictl --runtime-endpoint unix://{{ cri_socket }} ps -o json | jq  --arg container "$container" -r --unbuffered   '.containers[]|select(.metadata.name == $container)|.state')
+      if [ "$STATE" != "CONTAINER_RUNNING" ]; then
+        exit 2
+      fi
+    done
+  ignore_errors: yes
+  register: kubernetes_control_plane_local
+  changed_when: false
+
+- name: Kubeadm | Master | Check if Kubernetes control plane is UP on other nodes
+  shell: |
+    CONTAINERS=(kube-proxy etcd kube-controller-manager kube-apiserver kube-scheduler)
+    for container in "${CONTAINERS[@]}"
+    do
+      STATE=$(crictl --runtime-endpoint unix://{{ cri_socket }} ps -o json | jq  --arg container "$container" -r --unbuffered   '.containers[]|select(.metadata.name == $container)|.state')
+      if [ "$STATE" != "CONTAINER_RUNNING" ]; then
+        exit 2
+      fi
+    done
+  register: kubernetes_control_plane_delegated
+  changed_when: false
+  ignore_errors: yes
+  delegate_to: "{{ item }}" 
+  with_items: "{{ groups['master'] }}"
+  when: item != inventory_hostname and kubernetes_control_plane_local.rc == 2

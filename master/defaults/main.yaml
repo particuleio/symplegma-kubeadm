@@ -1,7 +1,7 @@
 ---
 bin_dir: /opt/bin
 
-cri_socket: /var/run/containerd/containerd.sock
+cri_socket: /run/containerd/containerd.sock
 
 kubernetes_version: v1.11.2
 

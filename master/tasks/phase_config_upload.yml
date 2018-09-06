@@ -1,0 +1,8 @@
+---
+- name: Kubeadm | Master | Config upload phase
+  shell: |
+    kubeadm alpha phase upload-config --config kubeadm-config.yaml
+    kubeadm alpha phase kubelet config upload --config kubeadm-config.yaml
+  args:
+    chdir: "{{ kubeadm_exec_dir }}"
+  run_once: yes

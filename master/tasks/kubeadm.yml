@@ -1,0 +1,36 @@
+---
+- name: Kubeadm | Master | Ensure kubeadm required directories exist
+  file: path={{ item }} state=directory
+  with_items:
+    - "{{ kubeadm_exec_dir }}"
+    - "{{ kubeadm_sync_dirs }}"
+
+- name: Kubeadm | Master | Copy kubeadm init config file
+  template:
+    src: kubeadm-config.yaml.j2
+    dest: "{{ kubeadm_exec_dir }}/kubeadm-config.yaml"
+  register: kubeadm_config
+
+- include_tasks: phase_certs.yml
+  when: kubeadm_config.changed
+
+- include_tasks: phase_config.yml
+  when: kubeadm_config.changed
+
+- include_tasks: phase_etcd.yml
+  when: kubeadm_config.changed
+
+- include_tasks: phase_controlplane.yml
+  when: kubeadm_config.changed
+
+- include_tasks: phase_tokens.yml
+  when: kubeadm_config.changed
+
+- include_tasks: phase_config_upload.yml
+  when: kubeadm_config.changed
+
+- include_tasks: phase_mark_master.yml
+  when: kubeadm_config.changed
+
+- include_tasks: phase_addons.yml
+  when: kubeadm_config.changed

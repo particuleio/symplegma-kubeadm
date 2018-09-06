@@ -1,0 +1,6 @@
+---
+- name: Kubeadm | Master | Mark master phase
+  shell: |
+    kubeadm alpha phase mark-master
+  args:
+    chdir: "{{ kubeadm_exec_dir }}"

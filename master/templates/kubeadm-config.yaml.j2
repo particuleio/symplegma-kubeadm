@@ -1,3 +1,4 @@
+---
 apiVersion: kubeadm.k8s.io/v1alpha2
 kind: MasterConfiguration
 kubernetesVersion: {{ kubernetes_version }}
@@ -18,12 +19,11 @@ etcd:
       advertise-client-urls: "https://{{ ansible_env.COREOS_PRIVATE_IPV4 }}:2379"
       listen-peer-urls: "https://{{ ansible_env.COREOS_PRIVATE_IPV4 }}:2380"
       initial-advertise-peer-urls: "https://{{ ansible_env.COREOS_PRIVATE_IPV4 }}:2380"
-{% if inventory_hostname != groups['master'][0] %}
-      initial-cluster-state: existing
-{% endif %}
-      {% for index in range(groups['master'].index(inventory_hostname)+1) -%}
-      {% if loop.first %}initial-cluster: "{% endif %}{{ hostvars[groups['master'][index]].inventory_hostname }}=https://{{ hostvars[groups['master'][index]].ansible_env.COREOS_PRIVATE_IPV4 }}:2380{% if not loop.last %},{% else %}"{% endif %}
+      {% for host in groups['master'] -%}
+      {% if loop.first %}initial-cluster: "{% endif %}{{ hostvars[host].inventory_hostname }}=https://{{ hostvars[host].ansible_env.COREOS_PRIVATE_IPV4 }}:2380{% if not loop.last %},{% else %}"{% endif %}
       {%- endfor %}
+
+      {% if kubernetes_control_plane_local.rc == 2 %}initial-cluster-state: existing{% endif %}
 
     serverCertSANs:
       - {{ ansible_hostname }}
