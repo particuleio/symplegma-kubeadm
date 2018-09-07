@@ -23,7 +23,7 @@ etcd:
       {% if loop.first %}initial-cluster: "{% endif %}{{ hostvars[host].inventory_hostname }}=https://{{ hostvars[host].ansible_env.COREOS_PRIVATE_IPV4 }}:2380{% if not loop.last %},{% else %}"{% endif %}
       {%- endfor %}
 
-      {% if kubernetes_control_plane_local.rc == 2 %}initial-cluster-state: existing{% endif %}
+      {% if (etcd_health is defined) and (kubernetes_control_plane_local.rc == 2) %}initial-cluster-state: existing{% endif %}
 
     serverCertSANs:
       - {{ ansible_hostname }}
