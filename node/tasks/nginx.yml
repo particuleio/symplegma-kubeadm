@@ -27,7 +27,7 @@
     dest: "{{ kubernetes_manifests_dir }}/nginx-proxy.yaml"
 
 - name: Kubeadm | Node | Restart nginx-proxy if nginx config has changed
-  shell:
+  shell: |
     CONTAINER_ID=$(crictl --runtime-endpoint unix://{{ cri_socket }} ps -o json | jq -r --unbuffered   '.containers[]|select(.metadata.name == "nginx-proxy")|.id')
     crictl --runtime-endpoint unix://{{ cri_socket }} stop ${CONTAINER_ID}
     crictl --runtime-endpoint unix://{{ cri_socket }} rm ${CONTAINER_ID}
