@@ -1,5 +1,5 @@
 ---
-- name: Kubeadm | Node | Check if node already in node list
+- name: Kubeadm | Node | Register nodes
   shell: |
     kubectl get nodes -o=custom-columns=NAME:.metadata.name --no-headers
   environment:
@@ -7,6 +7,7 @@
   args:
     chdir: "{{ kubeadm_exec_dir }}"
   register: nodes
+  run_once: true
   delegate_to: "{{ groups['master'] | random(seed=inventory_hostname) }}"
   changed_when: false
 
