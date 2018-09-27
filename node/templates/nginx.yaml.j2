@@ -6,11 +6,11 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: kube-nginx
+  annotations:
+    scheduler.alpha.kubernetes.io/critical-pod: ""
 spec:
   hostNetwork: true
-  # When having win nodes in cluster without this patch, this pod cloud try to be created in windows
-  nodeSelector:
-    beta.kubernetes.io/os: linux
+  priorityClassName: system-cluster-critical
   containers:
   - name: nginx-proxy
     image: {{ nginx_image_repo }}:{{ nginx_image_tag }}
