@@ -19,7 +19,7 @@
     crictl --runtime-endpoint unix://{{ cri_socket }} rm "{{ nginx_proxy_pod_container_uuid.stdout }}"
     crictl --runtime-endpoint unix://{{ cri_socket }} stopp "{{ nginx_proxy_pod_sandbox_uuid.stdout }}"
     crictl --runtime-endpoint unix://{{ cri_socket }} rmp "{{ nginx_proxy_pod_sandbox_uuid.stdout }}"
-  when: ( not nginx_proxy_pod_sandbox_uuid.skipped ) and ( not nginx_proxy_pod_container_uuid.skipped )
+  when: ( nginx_proxy_pod_sandbox_uuid is defined ) and (  nginx_proxy_pod_container_uuid is defined )
 
 - name: Kubeadm | Node | Write nginx-proxy static pod
   template:
