@@ -3,7 +3,11 @@ bin_dir: /opt/bin
 
 cri_socket: /run/containerd/containerd.sock
 
-kubernetes_version: v1.11.2
+kubeadm_version: v1.11.3
+
+kubernetes_version: "{{ kubeadm_version }}"
+
+kubernetes_binaries_url: https://storage.googleapis.com/kubernetes-release/release/{{ kubeadm_version }}/bin/linux/amd64
 
 kubeadm_exec_dir: /root
 kubeadm_sync_dirs:
