@@ -1,6 +1,6 @@
 ---
 apiVersion: kubeadm.k8s.io/v1alpha3
-kind: ClusterConfiguration
+kind: InitConfiguration
 kubernetesVersion: {{ kubernetes_version }}
 apiServerCertSANs:
 - {{ ansible_env.COREOS_PUBLIC_IPV4 }}

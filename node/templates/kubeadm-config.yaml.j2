@@ -1,9 +1,9 @@
 ---
-apiVersion: kubeadm.k8s.io/v1alpha2
+apiVersion: kubeadm.k8s.io/v1alpha3
 discoveryTokenAPIServers:
 - 127.0.0.1:6443
 discoveryTokenUnsafeSkipCAVerification: true
-kind: NodeConfiguration
+kind: JoinConfiguration
 nodeRegistration:
   criSocket: {{ cri_socket }}
 token: {{ kubeadm_token.stdout }}
