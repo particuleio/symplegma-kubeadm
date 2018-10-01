@@ -1,6 +1,6 @@
 ---
-apiVersion: kubeadm.k8s.io/v1alpha2
-kind: MasterConfiguration
+apiVersion: kubeadm.k8s.io/v1alpha3
+kind: ClusterConfiguration
 kubernetesVersion: {{ kubernetes_version }}
 apiServerCertSANs:
 - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
@@ -9,8 +9,7 @@ apiServerCertSANs:
 - {{ inventory_hostname }}
 - {{ ansible_env.COREOS_PRIVATE_IPV4 }}
 - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
-api:
-    controlPlaneEndpoint: "{{ ansible_env.COREOS_PUBLIC_IPV4 }}"
+controlPlaneEndpoint: "{{ ansible_env.COREOS_PUBLIC_IPV4 }}"
 etcd:
   local:
     extraArgs:
