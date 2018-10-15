@@ -1,6 +1,6 @@
 ---
 apiVersion: kubeadm.k8s.io/v1alpha3
-kind: InitConfiguration
+kind: ClusterConfiguration
 kubernetesVersion: {{ kubernetes_version }}
 apiServerCertSANs:
 - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
@@ -38,13 +38,6 @@ etcd:
       - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
 networking:
     podSubnet: {{ kubeadm_pod_subnet }}
-nodeRegistration:
-  criSocket: {{ cri_socket }}
-{% if kubeadm_taint_master %}
-  taints:
-  - effect: NoSchedule
-    key: node-role.kubernetes.io/master
-{% endif %}
 {% if kubeadm_api_server_extra_args %}
 apiServerExtraArgs:
   {{ kubeadm_api_server_extra_args }}
@@ -57,3 +50,8 @@ controllerManagerExtraArgs:
 schedulerExtraArgs:
   {{ kubeadm_scheduler_extra_args }}
 {% endif %}
+---
+apiVersion: kubeadm.k8s.io/v1alpha3
+kind: InitConfiguration
+nodeRegistration:
+  criSocket: {{ cri_socket }}
