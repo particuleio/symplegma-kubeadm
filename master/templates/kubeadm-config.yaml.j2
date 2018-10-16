@@ -4,13 +4,14 @@ kind: ClusterConfiguration
 kubernetesVersion: {{ kubernetes_version }}
 clusterName: {{ kubeadm_cluster_name }}
 apiServerCertSANs:
+{% if ansible_env.COREOS_PUBLIC_IPV4 is defined %}
 - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
+{% endif %}
 - {{ ansible_hostname }}
 - {{ ansible_fqdn }}
 - {{ inventory_hostname }}
 - {{ ansible_env.COREOS_PRIVATE_IPV4 }}
-- {{ ansible_env.COREOS_PUBLIC_IPV4 }}
-controlPlaneEndpoint: "{{ ansible_env.COREOS_PUBLIC_IPV4 }}"
+controlPlaneEndpoint: {{ ansible_env.COREOS_PUBLIC_IPV4 | default(ansible_env.COREOS_PRIVATE_IPV4)}}
 etcd:
   local:
     extraArgs:
@@ -30,13 +31,19 @@ etcd:
       - {{ ansible_fqdn }}
       - {{ inventory_hostname }}
       - {{ ansible_env.COREOS_PRIVATE_IPV4 }}
+{% if ansible_env.COREOS_PUBLIC_IPV4 is defined %}
       - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
+{% endif %}
+
     peerCertSANs:
       - {{ ansible_hostname }}
       - {{ ansible_fqdn }}
       - {{ inventory_hostname }}
       - {{ ansible_env.COREOS_PRIVATE_IPV4 }}
+{% if ansible_env.COREOS_PUBLIC_IPV4 is defined %}
       - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
+{% endif %}
+
 networking:
     podSubnet: {{ kubeadm_pod_subnet }}
 {% if kubeadm_api_server_extra_args %}
