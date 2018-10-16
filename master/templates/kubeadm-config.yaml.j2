@@ -2,6 +2,7 @@
 apiVersion: kubeadm.k8s.io/v1alpha3
 kind: ClusterConfiguration
 kubernetesVersion: {{ kubernetes_version }}
+clusterName: {{ kubeadm_cluster_name }}
 apiServerCertSANs:
 - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
 - {{ ansible_hostname }}
@@ -49,6 +50,18 @@ controllerManagerExtraArgs:
 {% if kubeadm_scheduler_extra_args %}
 schedulerExtraArgs:
   {{ kubeadm_scheduler_extra_args }}
+{% endif %}
+{% if kubeadm_api_server_extra_volumes %}
+apiServerExtraVolumes:
+  {{ kubeadm_api_server_extra_volumes }}
+{% endif %}
+{% if kubeadm_controller_manager_extra_volumes %}
+controllerManagerExtraVolumes:
+  {{ kubeadm_controller_manager_extra_volumes }}
+{% endif %}
+{% if kubeadm_scheduler_extra_volumes %}
+schedulerExtraVolumes:
+  {{ kubeadm_scheduler_extra_volumes }}
 {% endif %}
 ---
 apiVersion: kubeadm.k8s.io/v1alpha3

@@ -20,5 +20,8 @@ kubeadm_pod_subnet: 192.168.0.0/16
 kubeadm_api_server_extra_args: {}
 kubeadm_controller_manager_extra_args: {}
 kubeadm_scheduler_extra_args: {}
+kubeadm_api_server_extra_volumes: {}
+kubeadm_controller_manager_extra_volumes: {}
+kubeadm_scheduler_extra_volumes: {}
 
-kubeadm_taint_master: true
+kubeadm_cluster_name: symplegma
