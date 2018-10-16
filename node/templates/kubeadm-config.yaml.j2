@@ -6,4 +6,8 @@ discoveryTokenUnsafeSkipCAVerification: true
 kind: JoinConfiguration
 nodeRegistration:
   criSocket: {{ cri_socket }}
+{% if kubeadm_kubelet_extra_args %}
+  kubeletExtraArgs:
+    {{ kubeadm_kubelet_extra_args }}
+{% endif %}
 token: {{ kubeadm_token.stdout }}
