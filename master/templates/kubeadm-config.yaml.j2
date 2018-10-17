@@ -11,7 +11,7 @@ apiServerCertSANs:
 - {{ ansible_fqdn }}
 - {{ inventory_hostname }}
 - {{ ansible_env.COREOS_PRIVATE_IPV4 }}
-controlPlaneEndpoint: {{ ansible_env.COREOS_PUBLIC_IPV4 | default(ansible_env.COREOS_PRIVATE_IPV4)}}
+controlPlaneEndpoint: {{ kubernetes_api_server_address | default(ansible_env.COREOS_PUBLIC_IPV4) | default(ansible_env.COREOS_PRIVATE_IPV4) | default (access_ip)}}
 etcd:
   local:
     extraArgs:
@@ -34,7 +34,6 @@ etcd:
 {% if ansible_env.COREOS_PUBLIC_IPV4 is defined %}
       - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
 {% endif %}
-
     peerCertSANs:
       - {{ ansible_hostname }}
       - {{ ansible_fqdn }}
@@ -45,30 +44,30 @@ etcd:
 {% endif %}
 
 networking:
-    podSubnet: {{ kubeadm_pod_subnet }}
+  podSubnet: {{ kubeadm_pod_subnet }}
 {% if kubeadm_api_server_extra_args %}
 apiServerExtraArgs:
-  {{ kubeadm_api_server_extra_args }}
+  {{ kubeadm_api_server_extra_args | indent (2)}}
 {% endif %}
 {% if kubeadm_controller_manager_extra_args %}
 controllerManagerExtraArgs:
-  {{ kubeadm_controller_manager_extra_args }}
+  {{ kubeadm_controller_manager_extra_args | indent (2) }}
 {% endif %}
 {% if kubeadm_scheduler_extra_args %}
 schedulerExtraArgs:
-  {{ kubeadm_scheduler_extra_args }}
+  {{ kubeadm_scheduler_extra_args | indent (2) }}
 {% endif %}
 {% if kubeadm_api_server_extra_volumes %}
 apiServerExtraVolumes:
-  {{ kubeadm_api_server_extra_volumes }}
+  {{ kubeadm_api_server_extra_volumes | indent(2) }}
 {% endif %}
 {% if kubeadm_controller_manager_extra_volumes %}
 controllerManagerExtraVolumes:
-  {{ kubeadm_controller_manager_extra_volumes }}
+  {{ kubeadm_controller_manager_extra_volumes | indent(2) }}
 {% endif %}
 {% if kubeadm_scheduler_extra_volumes %}
 schedulerExtraVolumes:
-  {{ kubeadm_scheduler_extra_volumes }}
+  {{ kubeadm_scheduler_extra_volumes | indent(2) }}
 {% endif %}
 ---
 apiVersion: kubeadm.k8s.io/v1alpha3
@@ -77,5 +76,5 @@ nodeRegistration:
   criSocket: {{ cri_socket }}
 {% if kubeadm_kubelet_extra_args %}
   kubeletExtraArgs:
-    {{ kubeadm_kubelet_extra_args }}
+    {{ kubeadm_kubelet_extra_args | indent (2) }}
 {% endif %}

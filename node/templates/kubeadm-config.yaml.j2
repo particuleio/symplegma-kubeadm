@@ -8,6 +8,6 @@ nodeRegistration:
   criSocket: {{ cri_socket }}
 {% if kubeadm_kubelet_extra_args %}
   kubeletExtraArgs:
-    {{ kubeadm_kubelet_extra_args }}
+    {{ kubeadm_kubelet_extra_args | indent (2) }}
 {% endif %}
 token: {{ kubeadm_token.stdout }}
