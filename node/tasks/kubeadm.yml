@@ -20,6 +20,6 @@
 
 - name: Kubeadm | Node | Join cluster
   command: |
-    kubeadm join --config kubeadm-config.yaml 
+    kubeadm join --config kubeadm-config.yaml
   args:
     chdir: "{{ kubeadm_exec_dir }}"
