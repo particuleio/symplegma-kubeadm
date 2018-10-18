@@ -2,9 +2,10 @@
 - include_tasks: check.yml
 
 - include_tasks: crictl.yml
-  when: ansible_fqdn not in nodes.stdout and nginx_state.rc == 2
+  when: ansible_fqdn not in nodes.stdout and nginx_state.rc == 2 and kubernetes_api_server_address is not defined
 
 - include_tasks: kubeadm.yml
   when: ansible_fqdn not in nodes.stdout
 
 - include_tasks: nginx.yml
+  when: kubernetes_api_server_address is not defined
