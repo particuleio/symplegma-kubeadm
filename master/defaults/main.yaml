@@ -7,7 +7,7 @@ kubeadm_version: v1.12.1
 
 kubernetes_version: "{{ kubeadm_version }}"
 
-kubernetes_api_server_address: {}
+kubernetes_api_endpoint_port: 6443
 
 kubernetes_binaries_url: https://storage.googleapis.com/kubernetes-release/release/{{ kubeadm_version }}/bin/linux/amd64
 

@@ -11,7 +11,7 @@ apiServerCertSANs:
 - {{ ansible_fqdn }}
 - {{ inventory_hostname }}
 - {{ ansible_env.COREOS_PRIVATE_IPV4 }}
-controlPlaneEndpoint: {{ kubernetes_api_server_address | default(ansible_env.COREOS_PUBLIC_IPV4) | default(ansible_env.COREOS_PRIVATE_IPV4) | default (access_ip)}}
+controlPlaneEndpoint: {{ kubernetes_api_server_address | default(ansible_env.COREOS_PUBLIC_IPV4) | default(ansible_env.COREOS_PRIVATE_IPV4) | default (access_ip) }}
 etcd:
   local:
     extraArgs:
@@ -72,6 +72,8 @@ schedulerExtraVolumes:
 ---
 apiVersion: kubeadm.k8s.io/v1alpha3
 kind: InitConfiguration
+apiEndpoint:
+  bindPort: {{ kubernetes_api_endpoint_port }}
 nodeRegistration:
   criSocket: {{ cri_socket }}
 {% if kubeadm_kubelet_extra_args %}
