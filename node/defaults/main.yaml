@@ -7,6 +7,8 @@ kubeadm_exec_dir: /root
 
 kubernetes_manifests_dir: /etc/kubernetes/manifests
 
+kubernetes_api_endpoint_port: 6443
+
 nginx_memory_limit: 512M
 nginx_cpu_limit: 300m
 nginx_memory_requests: 32M

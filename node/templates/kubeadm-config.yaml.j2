@@ -1,7 +1,7 @@
 ---
 apiVersion: kubeadm.k8s.io/v1alpha3
 discoveryTokenAPIServers:
-- 127.0.0.1:6443
+- {{ kubernetes_api_server_address | default ('127.0.0.1') }}:{{ kubernetes_api_server_port | default(kubernetes_api_endpoint_port) }}
 discoveryTokenUnsafeSkipCAVerification: true
 kind: JoinConfiguration
 nodeRegistration:
