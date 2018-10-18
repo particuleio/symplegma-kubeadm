@@ -14,7 +14,7 @@
     ETCDCTL_CERT: /etc/kubernetes/pki/etcd/peer.crt
     ETCDCTL_KEY: /etc/kubernetes/pki/etcd/peer.key
   register: etcd_health
-  changed_when: false 
-  retries: 30
+  changed_when: false
+  retries: 50
   delay: 5
   until: etcd_health.rc == 0  
