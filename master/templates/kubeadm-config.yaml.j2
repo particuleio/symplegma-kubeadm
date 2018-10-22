@@ -11,7 +11,7 @@ apiServerCertSANs:
 - {{ ansible_fqdn }}
 - {{ inventory_hostname }}
 - {{ ansible_env.COREOS_PRIVATE_IPV4 }}
-controlPlaneEndpoint: {{ kubernetes_api_server_address | default(ansible_env.COREOS_PUBLIC_IPV4) | default(ansible_env.COREOS_PRIVATE_IPV4) | default (access_ip) }}
+controlPlaneEndpoint: {{ kubernetes_api_server_address | default(ansible_env.COREOS_PUBLIC_IPV4) | default(ansible_env.COREOS_PRIVATE_IPV4) | default (access_ip) }}:{{ kubernetes_api_server_port | default(kubernetes_api_endpoint_port) }}
 etcd:
   local:
     extraArgs:
