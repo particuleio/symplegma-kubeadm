@@ -50,3 +50,11 @@
   until: nginx_state is success
   retries: 30
   delay: 5
+
+- name: Kubeadm | Node | Update server field in kubelet kubeconfig
+  lineinfile:
+    dest: "/etc/kubernetes/kubelet.conf"
+    regexp: 'server:'
+    line: '    server: 127.0.0.1:{{ kube_api_endpoint_port }}'
+    backup: yes
+  notify: restart kubelet
