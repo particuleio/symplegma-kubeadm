@@ -5,3 +5,5 @@
   when: kubernetes_control_plane_local.rc == 2 and kubernetes_control_plane_delegated is success
 
 - include_tasks: kubeadm.yml
+
+- include_tasks: kubeconfig.yml
