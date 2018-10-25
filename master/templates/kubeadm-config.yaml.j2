@@ -14,6 +14,9 @@ apiServerCertSANs:
 controlPlaneEndpoint: {{ kubernetes_api_server_address | default(ansible_env.COREOS_PUBLIC_IPV4) | default(ansible_env.COREOS_PRIVATE_IPV4) | default (access_ip) }}:{{ kubernetes_api_server_port | default(kubernetes_api_endpoint_port) }}
 etcd:
   local:
+{% if kubeadm_etcd_image is defined %}
+    image: {{ kubeadm_etcd_image }}
+{% endif %}
     extraArgs:
       name: "{{ inventory_hostname }}"
       listen-client-urls: "https://127.0.0.1:2379,https://{{ ansible_env.COREOS_PRIVATE_IPV4 }}:2379"
