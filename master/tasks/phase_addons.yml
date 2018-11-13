@@ -1,7 +1,7 @@
 ---
 - name: Kubeadm | Master | Addons phase
   shell: |
-    kubeadm alpha phase addon all --config kubeadm-config.yaml
+    {{ bin_dir }}/kubeadm alpha phase addon all --config kubeadm-config.yaml
   args:
     chdir: "{{ kubeadm_exec_dir }}"
   run_once: yes

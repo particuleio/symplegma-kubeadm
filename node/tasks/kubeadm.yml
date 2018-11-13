@@ -6,7 +6,7 @@
 
 - name: Kubeadm | Node | Generate Kubeadm join token
   command: |
-    kubeadm token create --ttl 5m
+    {{ bin_dir }}/kubeadm token create --ttl 5m
   args:
     chdir: "{{ kubeadm_exec_dir }}"
   register: kubeadm_token
@@ -20,6 +20,6 @@
 
 - name: Kubeadm | Node | Join cluster
   command: |
-    kubeadm join --config kubeadm-config.yaml
+    {{ bin_dir }}/kubeadm join --config kubeadm-config.yaml
   args:
     chdir: "{{ kubeadm_exec_dir }}"

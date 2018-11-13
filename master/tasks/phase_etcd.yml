@@ -1,7 +1,7 @@
 ---
 - name: Kubeadm | Master | Etcd phase
   shell: |
-    kubeadm alpha phase etcd local --config kubeadm-config.yaml
+    {{ bin_dir }}/kubeadm alpha phase etcd local --config kubeadm-config.yaml
   args:
     chdir: "{{ kubeadm_exec_dir }}"
 

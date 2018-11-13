@@ -24,32 +24,32 @@
 
 - name: Kubeadm | Node | Run nginx-proxy with cri-tools
   command: |
-    crictl --runtime-endpoint unix://"{{ cri_socket }}" pull  "{{ nginx_image_repo }}":"{{ nginx_image_tag }}" 
+    {{ bin_dir }}/crictl --runtime-endpoint unix://"{{ cri_socket }}" pull  "{{ nginx_image_repo }}":"{{ nginx_image_tag }}"
 
 - name: Kubeadm | Node | Run nginx-proxy with cri-tools
   command: |
-    crictl --runtime-endpoint unix://"{{ cri_socket }}" runp nginx-proxy-pod-sandbox.json
+    {{ bin_dir }}/crictl --runtime-endpoint unix://"{{ cri_socket }}" runp nginx-proxy-pod-sandbox.json
   args:
     chdir: "{{ kubeadm_exec_dir }}"
   register: nginx_proxy_pod_sandbox_uuid
 
 - name: Kubeadm | Node | Run nginx-proxy with cri-tools
   command: |
-    crictl --runtime-endpoint unix://"{{ cri_socket }}" create "{{ nginx_proxy_pod_sandbox_uuid.stdout }}" nginx-proxy-pod-container.json  nginx-proxy-pod-sandbox.json
+    {{ bin_dir }}/crictl --runtime-endpoint unix://"{{ cri_socket }}" create "{{ nginx_proxy_pod_sandbox_uuid.stdout }}" nginx-proxy-pod-container.json  nginx-proxy-pod-sandbox.json
   args:
     chdir: "{{ kubeadm_exec_dir }}"
   register: nginx_proxy_pod_container_uuid
 
 - name: Kubeadm | Node | Run nginx-proxy with cri-tools
   command: |
-    crictl --runtime-endpoint unix://"{{ cri_socket }}" start "{{ nginx_proxy_pod_container_uuid.stdout }}"
+    {{ bin_dir }}/crictl --runtime-endpoint unix://"{{ cri_socket }}" start "{{ nginx_proxy_pod_container_uuid.stdout }}"
 
 - name: Kubeadm | Node | Wait for nginx-proxy to be running
   shell: |
     CONTAINERS=(nginx-proxy)
     for container in "${CONTAINERS[@]}"
     do
-      STATE=$(crictl --runtime-endpoint unix://{{ cri_socket }} ps -o json | jq  --arg container "$container" -r --unbuffered   '.containers[]|select(.metadata.name == $container)|.state')
+      STATE=$({{ bin_dir }}/crictl --runtime-endpoint unix://{{ cri_socket }} ps -o json | jq --arg container "$container" -r --unbuffered '.containers[]|select(.metadata.name == $container)|.state')
       if [ "$STATE" != "CONTAINER_RUNNING" ]; then
         exit 2
       fi

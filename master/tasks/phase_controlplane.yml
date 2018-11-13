@@ -1,6 +1,6 @@
 ---
 - name: Kubeadm | Master | Control plane phase
   shell: |
-    kubeadm alpha phase controlplane all --config kubeadm-config.yaml
+    {{ bin_dir }}/kubeadm alpha phase controlplane all --config kubeadm-config.yaml
   args:
     chdir: "{{ kubeadm_exec_dir }}"
