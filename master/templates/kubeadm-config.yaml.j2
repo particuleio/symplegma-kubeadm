@@ -10,9 +10,9 @@ apiServerCertSANs:
 - {{ ansible_hostname }}
 - {{ ansible_fqdn }}
 - {{ inventory_hostname }}
-- {{ ansible_env.COREOS_PRIVATE_IPV4 }}
+- {{ ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address) }}
 {{ kubeadm_api_server_cert_extra_sans | default(omit) }}
-controlPlaneEndpoint: {{ kubernetes_api_server_address | default(ansible_env.COREOS_PUBLIC_IPV4) | default(ansible_env.COREOS_PRIVATE_IPV4) | default (access_ip) }}:{{ kubernetes_api_server_port | default(kubernetes_api_endpoint_port) }}
+kontrolPlaneEndpoint: {{ kubernetes_api_server_address | default(ansible_env.COREOS_PUBLIC_IPV4 | default(ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address))) }}:{{ kubernetes_api_server_port | default(kubernetes_api_endpoint_port) }}
 etcd:
   local:
 {% if kubeadm_etcd_image is defined %}
@@ -20,12 +20,12 @@ etcd:
 {% endif %}
     extraArgs:
       name: "{{ inventory_hostname }}"
-      listen-client-urls: "https://127.0.0.1:2379,https://{{ ansible_env.COREOS_PRIVATE_IPV4 }}:2379"
-      advertise-client-urls: "https://{{ ansible_env.COREOS_PRIVATE_IPV4 }}:2379"
-      listen-peer-urls: "https://{{ ansible_env.COREOS_PRIVATE_IPV4 }}:2380"
-      initial-advertise-peer-urls: "https://{{ ansible_env.COREOS_PRIVATE_IPV4 }}:2380"
+      listen-client-urls: "https://127.0.0.1:2379,https://{{ ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address) }}:2379"
+      advertise-client-urls: "https://{{ ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address) }}:2379"
+      listen-peer-urls: "https://{{ ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address) }}:2380"
+      initial-advertise-peer-urls: "https://{{ ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address) }}:2380"
       {% for host in groups['master'] -%}
-      {% if loop.first %}initial-cluster: "{% endif %}{{ hostvars[host].inventory_hostname }}=https://{{ hostvars[host].ansible_env.COREOS_PRIVATE_IPV4 }}:2380{% if not loop.last %},{% else %}"{% endif %}
+      {% if loop.first %}initial-cluster: "{% endif %}{{ hostvars[host].inventory_hostname }}=https://{{ hostvars[host].ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address) }}:2380{% if not loop.last %},{% else %}"{% endif %}
       {%- endfor %}
 
       {% if (etcd_health is defined) and (kubernetes_control_plane_local.rc == 2) %}initial-cluster-state: existing{% endif %}
@@ -34,7 +34,7 @@ etcd:
       - {{ ansible_hostname }}
       - {{ ansible_fqdn }}
       - {{ inventory_hostname }}
-      - {{ ansible_env.COREOS_PRIVATE_IPV4 }}
+      - {{ ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address) }}
 {% if ansible_env.COREOS_PUBLIC_IPV4 is defined %}
       - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
 {% endif %}
@@ -42,7 +42,7 @@ etcd:
       - {{ ansible_hostname }}
       - {{ ansible_fqdn }}
       - {{ inventory_hostname }}
-      - {{ ansible_env.COREOS_PRIVATE_IPV4 }}
+      - {{ ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address) }}
 {% if ansible_env.COREOS_PUBLIC_IPV4 is defined %}
       - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
 {% endif %}
