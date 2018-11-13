@@ -11,8 +11,10 @@ apiServerCertSANs:
 - {{ ansible_fqdn }}
 - {{ inventory_hostname }}
 - {{ ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address) }}
-{{ kubeadm_api_server_cert_extra_sans | default(omit) }}
-kontrolPlaneEndpoint: {{ kubernetes_api_server_address | default(ansible_env.COREOS_PUBLIC_IPV4 | default(ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address))) }}:{{ kubernetes_api_server_port | default(kubernetes_api_endpoint_port) }}
+{% if kubeadm_api_server_cert_extra_sans %}
+{{ kubeadm_api_server_cert_extra_sans }}
+{% endif %}
+controlPlaneEndpoint: {{ kubernetes_api_server_address | default(ansible_env.COREOS_PUBLIC_IPV4 | default(ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address))) }}:{{ kubernetes_api_server_port | default(kubernetes_api_endpoint_port) }}
 etcd:
   local:
 {% if kubeadm_etcd_image is defined %}
