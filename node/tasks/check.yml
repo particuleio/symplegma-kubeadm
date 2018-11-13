@@ -1,7 +1,7 @@
 ---
 - name: Kubeadm | Node | Register nodes
   shell: |
-    kubectl get nodes -o=custom-columns=NAME:.metadata.name --no-headers
+    {{ bin_dir }}/kubectl get nodes -o=custom-columns=NAME:.metadata.name --no-headers
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
   args:
@@ -16,7 +16,7 @@
     CONTAINERS=(nginx-proxy)
     for container in "${CONTAINERS[@]}"
     do
-      STATE=$(crictl --runtime-endpoint unix://{{ cri_socket }} ps -o json | jq  --arg container "$container" -r --unbuffered   '.containers[]|select(.metadata.name == $container)|.state')
+      STATE=$({{ bin_dir }}/crictl --runtime-endpoint unix://{{ cri_socket }} ps -o json | jq  --arg container "$container" -r --unbuffered '.containers[]|select(.metadata.name == $container)|.state')
       if [ "$STATE" != "CONTAINER_RUNNING" ]; then
         exit 2
       fi

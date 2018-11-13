@@ -15,10 +15,10 @@
 
 - name: Kubeadm | Node | Destroy old cri tools nginx container
   shell: |
-    crictl --runtime-endpoint unix://{{ cri_socket }} stop "{{ nginx_proxy_pod_container_uuid.stdout }}"
-    crictl --runtime-endpoint unix://{{ cri_socket }} rm "{{ nginx_proxy_pod_container_uuid.stdout }}"
-    crictl --runtime-endpoint unix://{{ cri_socket }} stopp "{{ nginx_proxy_pod_sandbox_uuid.stdout }}"
-    crictl --runtime-endpoint unix://{{ cri_socket }} rmp "{{ nginx_proxy_pod_sandbox_uuid.stdout }}"
+    {{ bin_dir }}/crictl --runtime-endpoint unix://{{ cri_socket }} stop "{{ nginx_proxy_pod_container_uuid.stdout }}"
+    {{ bin_dir }}/crictl --runtime-endpoint unix://{{ cri_socket }} rm "{{ nginx_proxy_pod_container_uuid.stdout }}"
+    {{ bin_dir }}/crictl --runtime-endpoint unix://{{ cri_socket }} stopp "{{ nginx_proxy_pod_sandbox_uuid.stdout }}"
+    {{ bin_dir }}/crictl --runtime-endpoint unix://{{ cri_socket }} rmp "{{ nginx_proxy_pod_sandbox_uuid.stdout }}"
   when: ( nginx_proxy_pod_sandbox_uuid is defined ) and (  nginx_proxy_pod_container_uuid is defined )
 
 - name: Kubeadm | Node | Write nginx-proxy static pod
@@ -28,9 +28,9 @@
 
 - name: Kubeadm | Node | Restart nginx-proxy if nginx config has changed
   shell: |
-    CONTAINER_ID=$(crictl --runtime-endpoint unix://{{ cri_socket }} ps -o json | jq -r --unbuffered   '.containers[]|select(.metadata.name == "nginx-proxy")|.id')
-    crictl --runtime-endpoint unix://{{ cri_socket }} stop ${CONTAINER_ID}
-    crictl --runtime-endpoint unix://{{ cri_socket }} rm ${CONTAINER_ID}
+    CONTAINER_ID=$({{ bin_dir }}/crictl --runtime-endpoint unix://{{ cri_socket }} ps -o json | jq -r --unbuffered '.containers[]|select(.metadata.name == "nginx-proxy")|.id')
+    {{ bin_dir }}/crictl --runtime-endpoint unix://{{ cri_socket }} stop ${CONTAINER_ID}
+    {{ bin_dir }}/crictl --runtime-endpoint unix://{{ cri_socket }} rm ${CONTAINER_ID}
   when: nginx_config is changed
   changed_when: false
   ignore_errors: yes
@@ -40,7 +40,7 @@
     CONTAINERS=(nginx-proxy)
     for container in "${CONTAINERS[@]}"
     do
-      STATE=$(crictl --runtime-endpoint unix://{{ cri_socket }} ps -o json | jq  --arg container "$container" -r --unbuffered   '.containers[]|select(.metadata.name == $container)|.state')
+      STATE=$({{ bin_dir }}/crictl --runtime-endpoint unix://{{ cri_socket }} ps -o json | jq --arg container "$container" -r --unbuffered '.containers[]|select(.metadata.name == $container)|.state')
       if [ "$STATE" != "CONTAINER_RUNNING" ]; then
         exit 2
       fi
