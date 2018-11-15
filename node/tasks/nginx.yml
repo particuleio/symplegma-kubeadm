@@ -55,6 +55,6 @@
   lineinfile:
     dest: "/etc/kubernetes/kubelet.conf"
     regexp: 'server:'
-    line: '    server: 127.0.0.1:{{ kubernetes_api_endpoint_port }}'
+    line: '    server: https://127.0.0.1:{{ kubernetes_api_endpoint_port }}'
     backup: yes
   notify: restart kubelet
