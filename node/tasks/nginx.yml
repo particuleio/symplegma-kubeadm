@@ -58,3 +58,5 @@
     line: '    server: 127.0.0.1:{{ kube_api_endpoint_port }}'
     backup: yes
   notify: restart kubelet
+  when:
+  - kube_api_endpoint_port is defined
