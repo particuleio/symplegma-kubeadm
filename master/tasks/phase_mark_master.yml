@@ -1,6 +1,6 @@
 ---
 - name: Kubeadm | Master | Mark master phase
   shell: |
-    {{ bin_dir }}/kubeadm alpha phase mark-master
+    {{ bin_dir }}/kubeadm init phase mark-control-plane
   args:
     chdir: "{{ kubeadm_exec_dir }}"

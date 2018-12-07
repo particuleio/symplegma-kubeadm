@@ -1,9 +1,8 @@
 ---
 - name: Kubeadm | Master | Kubelet and kubeconfig phase
   shell: |
-    {{ bin_dir }}/kubeadm alpha phase kubelet config write-to-disk --config kubeadm-config.yaml
-    {{ bin_dir }}/kubeadm alpha phase kubelet write-env-file --config kubeadm-config.yaml
-    {{ bin_dir }}/kubeadm alpha phase kubeconfig all --config kubeadm-config.yaml
+    {{ bin_dir }}/kubeadm init phase kubelet-start  --config kubeadm-config.yaml
+    {{ bin_dir }}/kubeadm init phase kubeconfig all --config kubeadm-config.yaml
   args:
     chdir: "{{ kubeadm_exec_dir }}"
   notify: restart kubelet

@@ -1,14 +1,14 @@
 ---
 - name: Kubeadm | Master | Etcd phase
   shell: |
-    {{ bin_dir }}/kubeadm alpha phase etcd local --config kubeadm-config.yaml
+    {{ bin_dir }}/kubeadm init phase etcd local --config kubeadm-config.yaml
   args:
     chdir: "{{ kubeadm_exec_dir }}"
 
 - name: Kubeadm | Wait until etcd cluster is healthy
   shell: |
     etcdctl --endpoints=https://127.0.0.1:2379 endpoint health
-  environment:  
+  environment:
     ETCDCTL_API: 3
     ETCDCTL_CACERT: /etc/kubernetes/pki/etcd/ca.crt
     ETCDCTL_CERT: /etc/kubernetes/pki/etcd/peer.crt

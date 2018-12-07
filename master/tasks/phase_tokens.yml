@@ -1,7 +1,7 @@
 ---
 - name: Kubeadm | Master | Token phase
   shell: |
-    {{ bin_dir }}/kubeadm alpha phase bootstrap-token all --config kubeadm-config.yaml
+    {{ bin_dir }}/kubeadm init phase bootstrap-token --config kubeadm-config.yaml
   args:
     chdir: "{{ kubeadm_exec_dir }}"
   run_once: yes

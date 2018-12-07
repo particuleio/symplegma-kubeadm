@@ -1,18 +1,27 @@
 ---
-apiVersion: kubeadm.k8s.io/v1alpha3
+apiVersion: kubeadm.k8s.io/v1beta1
 kind: ClusterConfiguration
 kubernetesVersion: {{ kubernetes_version }}
 clusterName: {{ kubeadm_cluster_name }}
-apiServerCertSANs:
+apiServer:
+  certSANs:
 {% if ansible_env.COREOS_PUBLIC_IPV4 is defined %}
-- {{ ansible_env.COREOS_PUBLIC_IPV4 }}
+  - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
 {% endif %}
-- {{ ansible_hostname }}
-- {{ ansible_fqdn }}
-- {{ inventory_hostname }}
-- {{ ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address) }}
+  - {{ ansible_hostname }}
+  - {{ ansible_fqdn }}
+  - {{ inventory_hostname }}
+  - {{ ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address) }}
 {% if kubeadm_api_server_cert_extra_sans %}
-{{ kubeadm_api_server_cert_extra_sans }}
+  {{ kubeadm_api_server_cert_extra_sans | indent(2) }}
+{% endif %}
+{% if kubeadm_api_server_extra_args %}
+  extraArgs:
+    {{ kubeadm_api_server_extra_args | indent (4)}}
+{% endif %}
+{% if kubeadm_api_server_extra_volumes %}
+  extraVolumes:
+    {{ kubeadm_api_server_extra_volumes | indent(4) }}
 {% endif %}
 controlPlaneEndpoint: {{ kubernetes_api_server_address | default(ansible_env.COREOS_PUBLIC_IPV4 | default(ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address))) }}:{{ kubernetes_api_server_port | default(kubernetes_api_endpoint_port) }}
 etcd:
@@ -51,34 +60,28 @@ etcd:
 
 networking:
   podSubnet: {{ kubeadm_pod_subnet }}
-{% if kubeadm_api_server_extra_args %}
-apiServerExtraArgs:
-  {{ kubeadm_api_server_extra_args | indent (2)}}
-{% endif %}
+controllerManager:
 {% if kubeadm_controller_manager_extra_args %}
-controllerManagerExtraArgs:
-  {{ kubeadm_controller_manager_extra_args | indent (2) }}
-{% endif %}
-{% if kubeadm_scheduler_extra_args %}
-schedulerExtraArgs:
-  {{ kubeadm_scheduler_extra_args | indent (2) }}
-{% endif %}
-{% if kubeadm_api_server_extra_volumes %}
-apiServerExtraVolumes:
-  {{ kubeadm_api_server_extra_volumes | indent(2) }}
+  extraArgs:
+    {{ kubeadm_controller_manager_extra_args | indent (4) }}
 {% endif %}
 {% if kubeadm_controller_manager_extra_volumes %}
-controllerManagerExtraVolumes:
-  {{ kubeadm_controller_manager_extra_volumes | indent(2) }}
+  extraVolumes:
+    {{ kubeadm_controller_manager_extra_volumes | indent(4) }}
+{% endif %}
+scheduler:
+{% if kubeadm_scheduler_extra_args %}
+  extraArgs:
+    {{ kubeadm_scheduler_extra_args | indent (4) }}
 {% endif %}
 {% if kubeadm_scheduler_extra_volumes %}
-schedulerExtraVolumes:
-  {{ kubeadm_scheduler_extra_volumes | indent(2) }}
+  extraVolumes:
+    {{ kubeadm_scheduler_extra_volumes | indent(4) }}
 {% endif %}
 ---
-apiVersion: kubeadm.k8s.io/v1alpha3
+apiVersion: kubeadm.k8s.io/v1beta1
 kind: InitConfiguration
-apiEndpoint:
+localAPIEndpoint:
   bindPort: {{ kubernetes_api_endpoint_port }}
 nodeRegistration:
   criSocket: {{ cri_socket }}
