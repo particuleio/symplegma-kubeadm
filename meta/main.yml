@@ -3,6 +3,8 @@ galaxy_info:
   author: ArchiFleKs
   description: Ansible role to boostrap Kubeadm Kubernetes cluster
   company: clusterfraks-dynamics
+  platforms:
+    - GenericLinux
 
   license: Apache
 
