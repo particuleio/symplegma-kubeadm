@@ -12,6 +12,8 @@ apiServer:
   - {{ ansible_fqdn }}
   - {{ inventory_hostname }}
   - {{ ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address) }}
+  - localhost
+  - 127.0.0.1
 {% if kubeadm_api_server_cert_extra_sans %}
   {{ kubeadm_api_server_cert_extra_sans | indent(2) }}
 {% endif %}
@@ -48,6 +50,8 @@ etcd:
       - {{ ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address) }}
 {% if ansible_env.COREOS_PUBLIC_IPV4 is defined %}
       - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
+      - localhost
+      - 127.0.0.1
 {% endif %}
     peerCertSANs:
       - {{ ansible_hostname }}
