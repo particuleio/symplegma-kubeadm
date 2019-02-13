@@ -28,8 +28,11 @@ apiServer:
 controlPlaneEndpoint: {{ kubernetes_api_server_address | default(ansible_env.COREOS_PUBLIC_IPV4 | default(ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address))) }}:{{ kubernetes_api_server_port | default(kubernetes_api_endpoint_port) }}
 etcd:
   local:
-{% if kubeadm_etcd_image is defined %}
-    image: {{ kubeadm_etcd_image }}
+{% if kubeadm_etcd_image_repo is defined %}
+    imageRepository: {{ kubeadm_etcd_image_repo }}
+{% endif %}
+{% if kubeadm_etcd_image_tag is defined %}
+    imageTag: {{ kubeadm_etcd_image_tag }}
 {% endif %}
     extraArgs:
       name: "{{ inventory_hostname }}"
