@@ -2,8 +2,8 @@
 - name: Kubeadm | Node | Make nginx-proxy directory
   file: path={{ item }} state=directory mode=0700 owner=root
   with_items:
-    - "{{ kubernetes_manifests_dir }}"
-    - "{{ nginx_config_dir }}"
+  - "{{ kubernetes_manifests_dir }}"
+  - "{{ nginx_config_dir }}"
 
 - name: Kubeadm | Node | Write nginx-proxy configuration
   template:
@@ -46,6 +46,7 @@
 
 - name: Kubeadm | Node | Wait for nginx-proxy to be running
   shell: |
+    set -o pipefail
     CONTAINERS=(nginx-proxy)
     for container in "${CONTAINERS[@]}"
     do
@@ -54,6 +55,8 @@
         exit 2
       fi
     done
+  args:
+    executable: /bin/bash
   register: nginx_state
   until: nginx_state is success
   retries: 30

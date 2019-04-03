@@ -13,7 +13,7 @@
     - /etc/kubernetes/pki/etcd/ca.crt
     - /etc/kubernetes/pki/etcd/ca.key
   register: slurp_certs
-  ignore_errors: yes  
+  ignore_errors: yes
   run_once: yes
 
 - name: Kubeadm | Master | Sync existing certs

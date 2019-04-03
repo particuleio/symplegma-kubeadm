@@ -17,4 +17,4 @@
   changed_when: false
   retries: 50
   delay: 5
-  until: etcd_health.rc == 0  
+  until: etcd_health.rc == 0

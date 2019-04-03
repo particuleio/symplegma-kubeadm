@@ -2,7 +2,7 @@
 - name: Kubeadm | Node | Ensure kubeadm required directories exist
   file: path={{ item }} state=directory
   with_items:
-    - "{{ kubeadm_exec_dir }}"
+  - "{{ kubeadm_exec_dir }}"
 
 - name: Kubeadm | Node | Generate Kubeadm join token
   command: |
