@@ -11,6 +11,3 @@ install:
 
 script:
   - ansible-lint .
-
-after_success:
-  - ./semantic-release -ghr -vf
