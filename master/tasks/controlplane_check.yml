@@ -1,6 +1,7 @@
 ---
 - name: Kubeadm | Master | Check if Kubernetes control plane is UP
   shell: |
+    #!/bin/bash
     CONTAINERS=(kube-proxy etcd kube-controller-manager kube-apiserver kube-scheduler)
     for container in "${CONTAINERS[@]}"
     do
@@ -15,6 +16,7 @@
 
 - name: Kubeadm | Master | Check if Kubernetes control plane is UP on other nodes
   shell: |
+    #!/bin/bash
     CONTAINERS=(kube-proxy etcd kube-controller-manager kube-apiserver kube-scheduler)
     for container in "${CONTAINERS[@]}"
     do
