@@ -6,6 +6,7 @@
     KUBECONFIG: /etc/kubernetes/admin.conf
   args:
     chdir: "{{ kubeadm_exec_dir }}"
+    executable: /bin/bash
   register: nodes
   run_once: true
   delegate_to: "{{ groups['master'] | random(seed=inventory_hostname) }}"
@@ -21,6 +22,8 @@
         exit 2
       fi
     done
+  args:
+    executable: /bin/bash
   register: nginx_state
   ignore_errors: yes
   changed_when: false

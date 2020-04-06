@@ -10,6 +10,8 @@
         exit 2
       fi
     done
+  args:
+    executable: /bin/bash
   ignore_errors: yes
   register: kubernetes_control_plane_local
   changed_when: false
@@ -25,6 +27,8 @@
         exit 2
       fi
     done
+  args:
+    executable: /bin/bash
   register: kubernetes_control_plane_delegated
   changed_when: false
   ignore_errors: yes
