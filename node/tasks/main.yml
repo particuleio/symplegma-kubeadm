@@ -8,7 +8,9 @@
   - kubernetes_api_server_address is not defined
 
 - include_tasks: kubeadm.yml
-  when: ansible_fqdn not in nodes.stdout
+  when:
+  - ansible_fqdn not in nodes.stdout
+  - ansible_hostname not in nodes.stdout
 
 - include_tasks: nginx.yml
   when: kubernetes_api_server_address is not defined
