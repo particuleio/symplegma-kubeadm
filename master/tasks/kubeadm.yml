@@ -19,30 +19,30 @@
   register: kubeadm_config
 
 - include_tasks: phase_certs.yml
-  when: kubeadm_config.changed
+  when: kubeadm_config.changed or kubeadm_force_init
 
 - include_tasks: phase_config.yml
-  when: kubeadm_config.changed
+  when: kubeadm_config.changed or kubeadm_force_init
 
 - include_tasks: phase_etcd.yml
-  when: kubeadm_config.changed
+  when: kubeadm_config.changed or kubeadm_force_init
 
 - include_tasks: phase_controlplane.yml
-  when: kubeadm_config.changed
+  when: kubeadm_config.changed or kubeadm_force_init
 
 - include_tasks: phase_tokens.yml
-  when: kubeadm_config.changed
+  when: kubeadm_config.changed or kubeadm_force_init
 
 - include_tasks: phase_config_upload.yml
-  when: kubeadm_config.changed
+  when: kubeadm_config.changed or kubeadm_force_init
 
 - include_tasks: phase_mark_master.yml
-  when: kubeadm_config.changed
+  when: kubeadm_config.changed or kubeadm_force_init
 
 - include_tasks: phase_kubelet_finalize.yml
-  when: kubeadm_config.changed
+  when: kubeadm_config.changed or kubeadm_force_init
 
 - include_tasks: phase_addons.yml
-  when: kubeadm_config.changed
+  when: kubeadm_config.changed or kubeadm_force_init
 
 - include_tasks: phase_certs_renew.yml

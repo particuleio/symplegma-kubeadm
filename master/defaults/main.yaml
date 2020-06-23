@@ -30,3 +30,5 @@ kubeadm_kubelet_extra_args: {}
 kubeadm_api_server_cert_extra_sans: {}
 
 kubeadm_cluster_name: symplegma
+
+kubeadm_force_init: false
