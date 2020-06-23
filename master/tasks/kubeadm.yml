@@ -39,5 +39,10 @@
 - include_tasks: phase_mark_master.yml
   when: kubeadm_config.changed
 
+- include_tasks: phase_kubelet_finalize.yml
+  when: kubeadm_config.changed
+
 - include_tasks: phase_addons.yml
   when: kubeadm_config.changed
+
+- include_tasks: phase_certs_renew.yml

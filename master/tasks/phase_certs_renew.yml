@@ -1,0 +1,6 @@
+---
+- name: Kubeadm | Certs renew phase
+  shell: |
+    {{ bin_dir }}/kubeadm alpha certs renew all --config kubeadm-config.yaml
+  args:
+    chdir: "{{ kubeadm_exec_dir }}"
