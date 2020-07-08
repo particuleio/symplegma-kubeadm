@@ -3,6 +3,7 @@
   file: path={{ item }} state=directory
   with_items:
   - "{{ kubeadm_exec_dir }}"
+  - "{{ kubernetes_manifests_dir }}"
 
 - name: Kubeadm | Node | Generate Kubeadm join token
   command: |
