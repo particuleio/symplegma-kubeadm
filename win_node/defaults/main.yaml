@@ -1,0 +1,10 @@
+---
+bin_dir: /opt/bin
+
+win_kubeadm_exec_dir: "C:/k/prepare"
+
+kubeadm_exec_dir: /root
+
+kubernetes_api_endpoint_port: 6443
+
+kubeadm_kubelet_extra_args: {}

@@ -1,0 +1,28 @@
+---
+- name: Kubeadm | Win Node | Ensure kubeadm required directories exist
+  win_file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+  loop:
+    - "{{ win_kubeadm_exec_dir }}"
+
+- name: Kubeadm | Win Node | Generate Kubeadm join token
+  command: |
+    {{ bin_dir }}/kubeadm token create --ttl 5m
+  args:
+    chdir: "{{ kubeadm_exec_dir }}"
+  register: kubeadm_token
+  delegate_to: "{{ groups['master'] | random(seed=inventory_hostname) }}"
+
+- name: Kubeadm | Win Node | Copy kubeadm init config file
+  win_template:
+    src: kubeadm-config.yaml.j2
+    dest: "{{ win_kubeadm_exec_dir }}/kubeadm-config.yaml"
+  register: kubeadm_config
+
+- name: Kubeadm | Win Node | Join cluster
+  win_shell: |
+    kubeadm join --config kubeadm-config.yaml
+  args:
+    chdir: "{{ win_kubeadm_exec_dir }}"
