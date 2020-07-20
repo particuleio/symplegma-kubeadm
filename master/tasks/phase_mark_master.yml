@@ -4,3 +4,5 @@
     {{ bin_dir }}/kubeadm init phase mark-control-plane
   args:
     chdir: "{{ kubeadm_exec_dir }}"
+  retries: 10
+  delay: 5

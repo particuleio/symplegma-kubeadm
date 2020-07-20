@@ -5,3 +5,5 @@
   args:
     chdir: "{{ kubeadm_exec_dir }}"
   run_once: yes
+  retries: 10
+  delay: 5
