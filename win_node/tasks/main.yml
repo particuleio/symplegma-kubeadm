@@ -3,5 +3,7 @@
 
 - include_tasks: kubeadm.yml
   when:
-  - ansible_fqdn not in nodes.stdout
-  - ansible_hostname not in nodes.stdout
+  - (ansible_fqdn|lower) not in nodes.stdout
+  - (ansible_hostname|lower) not in nodes.stdout
+  - (inventory_hostname|lower) not in nodes.stdout
+
