@@ -11,7 +11,7 @@ stream {
         upstream kube_apiserver {
             least_conn;
             {% for host in groups['master'] -%}
-            server {{ hostvars[host].ansible_env.COREOS_PRIVATE_IPV4 | default(hostvars[host].ansible_default_ipv4.address) }}:6443;
+            server {{ hostvars[host].ansible_env.COREOS_PRIVATE_IPV4 | default(hostvars[host].local_lb_register_ip | default(hostvars[host].ansible_default_ipv4.address)) }}:6443;
             {% endfor %}
         }
 
