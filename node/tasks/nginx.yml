@@ -1,7 +1,7 @@
 ---
 - name: Kubeadm | Node | Make nginx-proxy directory
   file:
-    path: {{ item }}
+    path: "{{ item }}"
     state: directory
     mode: 0700
     owner: root
