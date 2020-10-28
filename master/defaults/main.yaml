@@ -1,9 +1,9 @@
 ---
 bin_dir: /opt/bin
 
-cri_socket: /run/containerd/containerd.sock
+cri_socket: unix:///run/containerd/containerd.sock
 
-kubeadm_version: v1.19.2
+kubeadm_version: v1.19.3
 
 kubernetes_version: "{{ kubeadm_version }}"
 
@@ -20,15 +20,22 @@ kubeadm_sync_dirs:
 kubeadm_pod_subnet: 192.168.0.0/16
 
 kubeadm_api_server_extra_args: {}
-kubeadm_controller_manager_extra_args: {}
-kubeadm_scheduler_extra_args: {}
 kubeadm_api_server_extra_volumes: {}
-kubeadm_controller_manager_extra_volumes: {}
-kubeadm_scheduler_extra_volumes: {}
-kubeadm_kubelet_extra_args: {}
-
 kubeadm_api_server_cert_extra_sans: {}
+
+kubeadm_controller_manager_extra_args: {}
+kubeadm_controller_manager_extra_volumes: {}
+
+kubeadm_scheduler_extra_args: {}
+kubeadm_scheduler_extra_volumes: {}
+
+kubeadm_kubelet_extra_args: {}
+kubeadm_kubelet_component_config: {}
+
+kubeadm_kube_proxy_component_config: {}
 
 kubeadm_cluster_name: symplegma
 
 kubeadm_force_init: false
+
+systemd_cgroup: false
