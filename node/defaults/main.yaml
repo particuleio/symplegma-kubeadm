@@ -24,3 +24,5 @@ nginx_config_dir: /etc/nginx
 
 kubeadm_kubelet_extra_args: {}
 kubeadm_kubelet_component_config: {}
+
+systemd_cgroup: false
