@@ -32,3 +32,4 @@
     line: '    server: https://127.0.0.1:{{ kubernetes_api_endpoint_port }}'
     backup: yes
   notify: restart kubelet
+  when: kubernetes_api_server_address is not defined
