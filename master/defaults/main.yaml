@@ -38,4 +38,6 @@ kubeadm_cluster_name: symplegma
 
 kubeadm_force_init: false
 
+kubeadm_mark_control_plane: true
+
 systemd_cgroup: false

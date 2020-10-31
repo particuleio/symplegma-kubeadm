@@ -6,3 +6,4 @@
     chdir: "{{ kubeadm_exec_dir }}"
   retries: 10
   delay: 5
+  when: kubeadm_mark_control_plane
