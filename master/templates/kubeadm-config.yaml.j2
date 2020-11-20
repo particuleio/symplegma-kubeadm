@@ -67,6 +67,8 @@ etcd:
 
 networking:
   podSubnet: {{ kubeadm_pod_subnet }}
+  dnsDomain: {{ kubeadm_service_dns_domain }}
+  serviceSubnet: {{ kubeadm_service_subnet }}
 controllerManager:
 {% if kubeadm_controller_manager_extra_args %}
   extraArgs:

@@ -19,6 +19,9 @@ kubeadm_sync_dirs:
 
 kubeadm_pod_subnet: 192.168.0.0/16
 
+kubeadm_service_subnet: 10.96.0.0/12
+kubeadm_service_dns_domain: cluster.local
+
 kubeadm_api_server_extra_args: {}
 kubeadm_api_server_extra_volumes: {}
 kubeadm_api_server_cert_extra_sans: {}
