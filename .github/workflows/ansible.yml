@@ -1,0 +1,37 @@
+---
+name: 'symplegma-kubeadm'
+
+'on':
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  linter:
+    name: "symplegma-kubeadm:linter"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install test dependencies.
+        run: |
+          pip3 install ansible~=${{ secrets.ANSIBLE_VERSION }} yamllint ansible-lint==5.0.1
+
+      - name: Lint yaml.
+        run: |
+          yamllint .
+
+      - name: Lint roles.
+        run: |
+          ansible-lint master
+          ansible-lint node
+          ansible-lint win_node
