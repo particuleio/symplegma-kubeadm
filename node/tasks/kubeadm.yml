@@ -1,9 +1,12 @@
 ---
 - name: Kubeadm | Node | Ensure kubeadm required directories exist
-  file: path={{ item }} state=directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "u+rw,g+r,o+r"
   with_items:
-  - "{{ kubeadm_exec_dir }}"
-  - "{{ kubernetes_manifests_dir }}"
+    - "{{ kubeadm_exec_dir }}"
+    - "{{ kubernetes_manifests_dir }}"
 
 - name: Kubeadm | Node | Generate Kubeadm join token
   command: |
@@ -17,6 +20,7 @@
   template:
     src: kubeadm-config.yaml.j2
     dest: "{{ kubeadm_exec_dir }}/kubeadm-config.yaml"
+    mode: "u+rw,g+r,o+r"
   register: kubeadm_config
 
 - name: Kubeadm | Node | Join cluster
@@ -30,6 +34,6 @@
     dest: "/etc/kubernetes/kubelet.conf"
     regexp: 'server:'
     line: '    server: https://127.0.0.1:{{ kubernetes_api_endpoint_port }}'
-    backup: yes
+    backup: true
   notify: restart kubelet
   when: kubernetes_api_server_address is not defined

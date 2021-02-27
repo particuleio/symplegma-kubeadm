@@ -12,7 +12,7 @@
     done
   args:
     executable: /bin/bash
-  ignore_errors: yes
+  ignore_errors: true
   register: kubernetes_control_plane_local
   changed_when: false
 
@@ -31,7 +31,7 @@
     executable: /bin/bash
   register: kubernetes_control_plane_delegated
   changed_when: false
-  ignore_errors: yes
+  ignore_errors: true
   delegate_to: "{{ item }}"
   with_items: "{{ groups['master'] }}"
   when: item != inventory_hostname and kubernetes_control_plane_local.rc == 2
