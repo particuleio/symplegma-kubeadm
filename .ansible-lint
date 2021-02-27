@@ -1,0 +1,5 @@
+# vim: ft=yaml
+---
+skip_list:
+ - 'role-name'  # Role name {} does not match ``^[a-z][a-z0-9_]+$`` pattern
+ - 'no-changed-when'  # Commands should not change things if nothing needs doing
