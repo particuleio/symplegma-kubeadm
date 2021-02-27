@@ -3,7 +3,7 @@
   win_file:
     path: "{{ item }}"
     state: directory
-    recurse: yes
+    recurse: true
   loop:
     - "{{ win_kubeadm_exec_dir }}"
 

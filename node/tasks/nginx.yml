@@ -6,8 +6,8 @@
     mode: 0700
     owner: root
   with_items:
-  - "{{ kubernetes_manifests_dir }}"
-  - "{{ nginx_config_dir }}"
+    - "{{ kubernetes_manifests_dir }}"
+    - "{{ nginx_config_dir }}"
 
 - name: Kubeadm | Node | Write nginx-proxy configuration
   template:
@@ -21,3 +21,4 @@
   template:
     src: nginx.yaml.j2
     dest: "{{ kubernetes_manifests_dir }}/nginx-proxy.yaml"
+    mode: "u+rw,g+r,o+r"

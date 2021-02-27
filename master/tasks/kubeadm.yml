@@ -1,6 +1,9 @@
 ---
 - name: Kubeadm | Master | Ensure kubeadm required directories exist
-  file: path={{ item }} state=directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 'u+rw,g+r,o+r'
   with_items:
     - "{{ kubeadm_exec_dir }}"
     - "{{ kubeadm_sync_dirs }}"
@@ -10,12 +13,13 @@
     url: "{{ kubernetes_binaries_url }}/kubeadm"
     mode: 0755
     dest: "{{ bin_dir }}/kubeadm"
-    force: yes
+    force: true
 
 - name: Kubeadm | Master | Copy kubeadm init config file
   template:
     src: kubeadm-config.yaml.j2
     dest: "{{ kubeadm_exec_dir }}/kubeadm-config.yaml"
+    mode: 'u+rw,g+r,o+r'
   register: kubeadm_config
 
 - include_tasks: phase_certs.yml

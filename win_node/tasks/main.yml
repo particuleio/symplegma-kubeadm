@@ -6,4 +6,3 @@
   - (ansible_fqdn|lower) not in nodes.stdout
   - (ansible_hostname|lower) not in nodes.stdout
   - (inventory_hostname|lower) not in nodes.stdout
-

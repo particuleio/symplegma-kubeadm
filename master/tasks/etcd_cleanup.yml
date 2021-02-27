@@ -1,3 +1,4 @@
+---
 - name: Kubeadm | Master | Check etcd cluster health
   shell: |
     etcdctl --endpoints=https://127.0.0.1:2379 endpoint --cluster health
@@ -8,8 +9,8 @@
     ETCDCTL_KEY: /etc/kubernetes/pki/etcd/peer.key
   register: etcd_health
   changed_when: false
-  ignore_errors: yes
-  run_once: yes
+  ignore_errors: true
+  run_once: true
   when: item != inventory_hostname
   delegate_to: "{{ item }}"
   with_items: "{{ groups['master'] }}"
@@ -30,8 +31,8 @@
     ETCDCTL_CERT: /etc/kubernetes/pki/etcd/peer.crt
     ETCDCTL_KEY: /etc/kubernetes/pki/etcd/peer.key
   changed_when: false
-  run_once: yes
-  ignore_errors: yes
+  run_once: true
+  ignore_errors: true
   when: ( item != inventory_hostname ) and (( etcd_health['results'] | random(seed=inventory_hostname)).rc is defined ) and (( etcd_health['results'] | random(seed=inventory_hostname)).rc != 0 )
   delegate_to: "{{ item }}"
   with_items: "{{ groups['master'] }}"
@@ -46,8 +47,8 @@
     ETCDCTL_KEY: /etc/kubernetes/pki/etcd/peer.key
   register: node_in_cluster
   when: item != inventory_hostname
-  run_once: yes
-  ignore_errors: yes
+  run_once: true
+  ignore_errors: true
   delegate_to: "{{ item }}"
   with_items: "{{ groups['master'] }}"
 
@@ -62,6 +63,6 @@
   register: new_node_added
   delegate_to: "{{ item }}"
   with_items: "{{ groups['master'] }}"
-  run_once: yes
-  ignore_errors: yes
+  run_once: true
+  ignore_errors: true
   when: ( item != inventory_hostname )

@@ -4,6 +4,6 @@
     {{ bin_dir }}/kubeadm init phase addon all --config kubeadm-config.yaml
   args:
     chdir: "{{ kubeadm_exec_dir }}"
-  run_once: yes
+  run_once: true
   retries: 10
   delay: 5

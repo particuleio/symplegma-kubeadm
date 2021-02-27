@@ -3,6 +3,6 @@
   systemd:
     state: restarted
     name: kubelet.service
-    daemon_reload: yes
-    enabled: yes
+    daemon_reload: true
+    enabled: true
   listen: "restart kubelet"

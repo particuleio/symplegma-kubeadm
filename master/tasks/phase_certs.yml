@@ -6,7 +6,7 @@
     {{ bin_dir }}/kubeadm init phase certs all --config kubeadm-config.yaml
   args:
     chdir: "{{ kubeadm_exec_dir }}"
-  run_once: yes
+  run_once: true
 
 - include_tasks: sync_certs.yml
 
