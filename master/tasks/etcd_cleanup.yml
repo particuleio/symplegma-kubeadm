@@ -9,19 +9,21 @@
     ETCDCTL_KEY: /etc/kubernetes/pki/etcd/peer.key
   register: etcd_health
   changed_when: false
-  ignore_errors: true
+  failed_when: false
   run_once: true
   when: item != inventory_hostname
   delegate_to: "{{ item }}"
   with_items: "{{ groups['master'] }}"
 
-- debug:
+- name: Kubeadm | Master | Debug etcd cluster health
+  debug:
     var: etcd_health
     verbosity: 2
 
 
 - name: Kubeadm | Master | Remove etcd unhealthy members
   shell: |
+    set -o pipefail
     export UNHEALTHY_ENDPOINT=$(etcdctl --endpoints=https://127.0.0.1:2379 endpoint --cluster health 2>&1  | grep "unhealthy:" | awk -F " " '{print $1}')
     export UNHEALTHY_ENDPOINT_ID=$(etcdctl --endpoints=https://127.0.0.1:2379 member list | awk -v unhealthy_endpoint="$UNHEALTHY_ENDPOINT" -F ", " '($5 == unhealthy_endpoint){print $1}')
     etcdctl --endpoints=https://127.0.0.1:2379 member remove ${UNHEALTHY_ENDPOINT_ID}
@@ -32,13 +34,14 @@
     ETCDCTL_KEY: /etc/kubernetes/pki/etcd/peer.key
   changed_when: false
   run_once: true
-  ignore_errors: true
+  failed_when: false
   when: ( item != inventory_hostname ) and (( etcd_health['results'] | random(seed=inventory_hostname)).rc is defined ) and (( etcd_health['results'] | random(seed=inventory_hostname)).rc != 0 )
   delegate_to: "{{ item }}"
   with_items: "{{ groups['master'] }}"
 
 - name: Kubeadm | Master | Check if node is in cluster
   shell: |
+    set -o pipefail
     etcdctl --endpoints=https://127.0.0.1:2379 -w json member list | jq -r --unbuffered -e --arg node "{{ inventory_hostname }}" '.members[]?| select(.name == $node ) | .name'
   environment:
     ETCDCTL_API: 3
@@ -48,12 +51,13 @@
   register: node_in_cluster
   when: item != inventory_hostname
   run_once: true
-  ignore_errors: true
+  failed_when: false
   delegate_to: "{{ item }}"
   with_items: "{{ groups['master'] }}"
 
 - name: Kubeadm | Master | Add etcd node to existing cluster
   shell: |
+    set -o pipefail
     etcdctl --endpoints=https://127.0.0.1:2379 member add "{{ inventory_hostname }}" --peer-urls=https://"{{ ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address) }}":2380
   environment:
     ETCDCTL_API: 3
@@ -64,5 +68,5 @@
   delegate_to: "{{ item }}"
   with_items: "{{ groups['master'] }}"
   run_once: true
-  ignore_errors: true
+  failed_when: false
   when: ( item != inventory_hostname )

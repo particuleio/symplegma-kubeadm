@@ -14,7 +14,7 @@
       - /etc/kubernetes/pki/etcd/ca.crt
       - /etc/kubernetes/pki/etcd/ca.key
   register: slurp_certs
-  ignore_errors: true
+  failed_when: false
   run_once: true
 
 - name: Kubeadm | Master | Sync existing certs
@@ -26,4 +26,4 @@
     mode: 0600
   loop: "{{ slurp_certs.results }}"
   when: ( item.skipped is defined and not item.skipped ) or ( item.failed is defined and not item.failed)
-  ignore_errors: true
+  failed_when: false
