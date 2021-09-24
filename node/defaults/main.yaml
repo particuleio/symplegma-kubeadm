@@ -16,7 +16,7 @@ nginx_cpu_limit: 300m
 nginx_memory_requests: 32M
 nginx_cpu_requests: 25m
 
-nginx_image_repo: nginx
+nginx_image_repo: docker.io/library/nginx
 nginx_image_tag: 1.21-alpine
 nginx_image_pull_policy: IfNotPresent
 
