@@ -3,7 +3,7 @@ bin_dir: /opt/bin
 
 cri_socket: unix:///run/containerd/containerd.sock
 
-kubeadm_version: v1.22.1
+kubeadm_version: v1.24.1
 
 kubeadm_exec_dir: /root
 

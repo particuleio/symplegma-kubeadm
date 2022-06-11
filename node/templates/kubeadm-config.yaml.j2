@@ -1,5 +1,5 @@
 ---
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 discovery:
   bootstrapToken:
     apiServerEndpoint: {{ kubernetes_api_server_address | default (hostvars[groups['master'] | random(seed=inventory_hostname)].apiserver_local_address | default(hostvars[groups['master'] | random(seed=inventory_hostname)].ansible_default_ipv4.address)) }}:{{ kubernetes_api_server_port | default(kubernetes_api_endpoint_port) }}

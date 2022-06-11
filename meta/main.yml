@@ -1,9 +1,10 @@
 ---
 galaxy_info:
-  version: 0.1
   author: ArchiFleKs
   description: Ansible role to boostrap Kubeadm Kubernetes cluster
-  company: clusterfraks-dynamics
+  company: particule
+  role_name: symplegma_kubeadm
+  namespace: particule
   platforms:
     - name: GenericLinux
       version:
@@ -11,7 +12,7 @@ galaxy_info:
 
   license: Apache
 
-  min_ansible_version: 2.6
+  min_ansible_version: "2.6"
 
   galaxy_tags: []
 
