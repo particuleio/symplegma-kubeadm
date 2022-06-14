@@ -7,12 +7,13 @@
 
 - name: Kubeadm | Wait until etcd cluster is healthy
   shell: |
-    etcdctl --endpoints=https://127.0.0.1:2379 endpoint health
+    {{ bin_dir }}/etcdctl endpoint health
   environment:
-    ETCDCTL_API: 3
+    ETCDCTL_API: '3'
     ETCDCTL_CACERT: /etc/kubernetes/pki/etcd/ca.crt
     ETCDCTL_CERT: /etc/kubernetes/pki/etcd/peer.crt
     ETCDCTL_KEY: /etc/kubernetes/pki/etcd/peer.key
+    ETCDCTL_ENDPOINTS: https://127.0.0.1:2379
   register: etcd_health
   changed_when: false
   retries: 50
