@@ -1,12 +1,13 @@
 ---
 - name: Kubeadm | Master | Check etcd cluster health
   shell: |
-    etcdctl --endpoints=https://127.0.0.1:2379 endpoint --cluster health
+    {{ bin_dir }}/etcdctl endpoint --cluster health
   environment:
-    ETCDCTL_API: 3
+    ETCDCTL_API: '3'
     ETCDCTL_CACERT: /etc/kubernetes/pki/etcd/ca.crt
     ETCDCTL_CERT: /etc/kubernetes/pki/etcd/peer.crt
     ETCDCTL_KEY: /etc/kubernetes/pki/etcd/peer.key
+    ETCDCTL_ENDPOINTS: https://127.0.0.1:2379
   register: etcd_health
   changed_when: false
   failed_when: false
@@ -20,18 +21,18 @@
     var: etcd_health
     verbosity: 2
 
-
 - name: Kubeadm | Master | Remove etcd unhealthy members
   shell: |
     set -o pipefail
-    export UNHEALTHY_ENDPOINT=$(etcdctl --endpoints=https://127.0.0.1:2379 endpoint --cluster health 2>&1  | grep "unhealthy:" | awk -F " " '{print $1}')
-    export UNHEALTHY_ENDPOINT_ID=$(etcdctl --endpoints=https://127.0.0.1:2379 member list | awk -v unhealthy_endpoint="$UNHEALTHY_ENDPOINT" -F ", " '($5 == unhealthy_endpoint){print $1}')
-    etcdctl --endpoints=https://127.0.0.1:2379 member remove ${UNHEALTHY_ENDPOINT_ID}
+    export UNHEALTHY_ENDPOINT=$(etcdctl endpoint --cluster health 2>&1  | grep "unhealthy:" | awk -F " " '{print $1}')
+    export UNHEALTHY_ENDPOINT_ID=$(etcdctl member list | awk -v unhealthy_endpoint="$UNHEALTHY_ENDPOINT" -F ", " '($5 == unhealthy_endpoint){print $1}')
+    {{ bin_dir }}/etcdctl member remove ${UNHEALTHY_ENDPOINT_ID}
   environment:
-    ETCDCTL_API: 3
+    ETCDCTL_API: '3'
     ETCDCTL_CACERT: /etc/kubernetes/pki/etcd/ca.crt
     ETCDCTL_CERT: /etc/kubernetes/pki/etcd/peer.crt
     ETCDCTL_KEY: /etc/kubernetes/pki/etcd/peer.key
+    ETCDCTL_ENDPOINTS: https://127.0.0.1:2379
   changed_when: false
   run_once: true
   failed_when: false
@@ -42,12 +43,14 @@
 - name: Kubeadm | Master | Check if node is in cluster
   shell: |
     set -o pipefail
-    etcdctl --endpoints=https://127.0.0.1:2379 -w json member list | jq -r --unbuffered -e --arg node "{{ inventory_hostname }}" '.members[]?| select(.name == $node ) | .name'
+    {{ bin_dir }}/etcdctl -w json member list | {{ bin_dir }}/jq \
+      -r --unbuffered -e --arg node {{ inventory_hostname }} '.members[]?| select(.name == $node ) | .name'
   environment:
-    ETCDCTL_API: 3
+    ETCDCTL_API: '3'
     ETCDCTL_CACERT: /etc/kubernetes/pki/etcd/ca.crt
     ETCDCTL_CERT: /etc/kubernetes/pki/etcd/peer.crt
     ETCDCTL_KEY: /etc/kubernetes/pki/etcd/peer.key
+    ETCDCTL_ENDPOINTS: https://127.0.0.1:2379
   register: node_in_cluster
   when: item != inventory_hostname
   run_once: true
@@ -58,15 +61,18 @@
 - name: Kubeadm | Master | Add etcd node to existing cluster
   shell: |
     set -o pipefail
-    etcdctl --endpoints=https://127.0.0.1:2379 member add "{{ inventory_hostname }}" --peer-urls=https://"{{ ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address) }}":2380
+    {{ bin_dir }}/etcdctl \
+      --peer-urls=https://{{ ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address) }}:2380 \
+      member add {{ inventory_hostname }}
   environment:
-    ETCDCTL_API: 3
+    ETCDCTL_API: '3'
     ETCDCTL_CACERT: /etc/kubernetes/pki/etcd/ca.crt
     ETCDCTL_CERT: /etc/kubernetes/pki/etcd/peer.crt
     ETCDCTL_KEY: /etc/kubernetes/pki/etcd/peer.key
+    ETCDCTL_ENDPOINTS: https://127.0.0.1:2379
   register: new_node_added
   delegate_to: "{{ item }}"
   with_items: "{{ groups['master'] }}"
   run_once: true
   failed_when: false
-  when: ( item != inventory_hostname )
+  when: item != inventory_hostname
