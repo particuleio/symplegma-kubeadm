@@ -1,6 +1,6 @@
 ---
 - name: Kubeadm | Node | Register nodes
-  shell: |
+  ansible.builtin.shell: |
     {{ bin_dir }}/kubectl get nodes -o=custom-columns=NAME:.metadata.name --no-headers
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf

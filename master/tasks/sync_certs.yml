@@ -1,6 +1,6 @@
 ---
 - name: Kubeadm | Master | Check if other masters are already bootstrapped
-  slurp:
+  ansible.builtin.slurp:
     src: "{{ item[1] }}"
   delegate_to: "{{ item[0] }}"
   with_nested:
@@ -18,7 +18,7 @@
   ignore_errors: true
 
 - name: Kubeadm | Master | Sync existing certs
-  copy:
+  ansible.builtin.copy:
     dest: "{{ item.item.1 }}"
     content: "{{ item.content | b64decode }}"
     owner: root

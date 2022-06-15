@@ -1,6 +1,6 @@
 ---
 - name: Kubeadm | Master | Mark master phase
-  shell: |
+  ansible.builtin.shell: |
     {{ bin_dir }}/kubeadm init phase mark-control-plane
   args:
     chdir: "{{ kubeadm_exec_dir }}"

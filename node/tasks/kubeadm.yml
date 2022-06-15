@@ -1,6 +1,6 @@
 ---
 - name: Kubeadm | Node | Ensure kubeadm required directories exist
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     mode: "u+rw,g+r,o+r"
@@ -9,7 +9,7 @@
     - "{{ kubernetes_manifests_dir }}"
 
 - name: Kubeadm | Node | Generate Kubeadm join token
-  command: |
+  ansible.builtin.command: |
     {{ bin_dir }}/kubeadm token create --ttl 5m
   args:
     chdir: "{{ kubeadm_exec_dir }}"
@@ -17,20 +17,20 @@
   delegate_to: "{{ groups['master'] | random(seed=inventory_hostname) }}"
 
 - name: Kubeadm | Node | Copy kubeadm init config file
-  template:
+  ansible.builtin.template:
     src: kubeadm-config.yaml.j2
     dest: "{{ kubeadm_exec_dir }}/kubeadm-config.yaml"
     mode: "u+rw,g+r,o+r"
   register: kubeadm_config
 
 - name: Kubeadm | Node | Join cluster
-  command: |
+  ansible.builtin.command: |
     {{ bin_dir }}/kubeadm join --config kubeadm-config.yaml --ignore-preflight-errors=DirAvailable--etc-kubernetes-manifests
   args:
     chdir: "{{ kubeadm_exec_dir }}"
 
 - name: Kubeadm | Node | Update server field in kubelet kubeconfig
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: "/etc/kubernetes/kubelet.conf"
     regexp: 'server:'
     line: '    server: https://127.0.0.1:{{ kubernetes_api_endpoint_port }}'

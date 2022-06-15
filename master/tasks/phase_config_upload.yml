@@ -1,6 +1,6 @@
 ---
 - name: Kubeadm | Master | Config upload phase
-  shell: |
+  ansible.builtin.shell: |
     {{ bin_dir }}/kubeadm init phase upload-config all --config kubeadm-config.yaml
   args:
     chdir: "{{ kubeadm_exec_dir }}"

@@ -1,6 +1,6 @@
 ---
 - name: Kubeadm | Master | Token phase
-  shell: |
+  ansible.builtin.shell: |
     {{ bin_dir }}/kubeadm init phase bootstrap-token --config kubeadm-config.yaml
   args:
     chdir: "{{ kubeadm_exec_dir }}"

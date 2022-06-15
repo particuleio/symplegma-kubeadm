@@ -1,6 +1,6 @@
 ---
 - name: Kubeadm | Master | Check etcd cluster health
-  shell: |
+  ansible.builtin.shell: |
     {{ bin_dir }}/etcdctl endpoint --cluster health
   environment:
     ETCDCTL_API: '3'
@@ -17,12 +17,12 @@
   with_items: "{{ groups['master'] }}"
 
 - name: Kubeadm | Master | Debug etcd cluster health
-  debug:
+  ansible.builtin.debug:
     var: etcd_health
     verbosity: 2
 
 - name: Kubeadm | Master | Remove etcd unhealthy members
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     export UNHEALTHY_ENDPOINT=$(etcdctl endpoint --cluster health 2>&1  | grep "unhealthy:" | awk -F " " '{print $1}')
     export UNHEALTHY_ENDPOINT_ID=$(etcdctl member list | awk -v unhealthy_endpoint="$UNHEALTHY_ENDPOINT" -F ", " '($5 == unhealthy_endpoint){print $1}')
@@ -41,7 +41,7 @@
   with_items: "{{ groups['master'] }}"
 
 - name: Kubeadm | Master | Check if node is in cluster
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     {{ bin_dir }}/etcdctl -w json member list | {{ bin_dir }}/jq \
       -r --unbuffered -e --arg node {{ inventory_hostname }} '.members[]?| select(.name == $node ) | .name'
@@ -59,7 +59,7 @@
   with_items: "{{ groups['master'] }}"
 
 - name: Kubeadm | Master | Add etcd node to existing cluster
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     {{ bin_dir }}/etcdctl \
       --peer-urls=https://{{ ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address) }}:2380 \

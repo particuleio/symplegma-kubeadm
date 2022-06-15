@@ -1,17 +1,17 @@
 ---
-- include_tasks: sync_certs.yml
+- ansible.builtin.include_tasks: sync_certs.yml
 
 - name: Kubeadm | Certs phase
-  shell: |
+  ansible.builtin.shell: |
     {{ bin_dir }}/kubeadm init phase certs all --config kubeadm-config.yaml
   args:
     chdir: "{{ kubeadm_exec_dir }}"
   run_once: true
 
-- include_tasks: sync_certs.yml
+- ansible.builtin.include_tasks: sync_certs.yml
 
 - name: Kubeadm | Certs phase
-  shell: |
+  ansible.builtin.shell: |
     {{ bin_dir }}/kubeadm init phase certs all --config kubeadm-config.yaml
   args:
     chdir: "{{ kubeadm_exec_dir }}"

@@ -3,4 +3,3 @@
 skip_list:
  - 'role-name'  # Role name {} does not match ``^[a-z][a-z0-9_]+$`` pattern
  - 'no-changed-when'  # Commands should not change things if nothing needs doing
- - 'fqcn-builtins'  # Do not check for ansible builtin FQDN

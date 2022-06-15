@@ -1,12 +1,12 @@
 ---
 - name: Kubeadm | Master | Etcd phase
-  shell: |
+  ansible.builtin.shell: |
     {{ bin_dir }}/kubeadm init phase etcd local --config kubeadm-config.yaml
   args:
     chdir: "{{ kubeadm_exec_dir }}"
 
 - name: Kubeadm | Wait until etcd cluster is healthy
-  shell: |
+  ansible.builtin.shell: |
     {{ bin_dir }}/etcdctl endpoint health
   environment:
     ETCDCTL_API: '3'
