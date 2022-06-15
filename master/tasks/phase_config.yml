@@ -1,6 +1,6 @@
 ---
 - name: Kubeadm | Master | Kubelet and kubeconfig phase
-  shell: |
+  ansible.builtin.shell: |
     {{ bin_dir }}/kubeadm init phase kubeconfig all --config kubeadm-config.yaml
     {{ bin_dir }}/kubeadm init phase kubelet-start  --config kubeadm-config.yaml
   args:
@@ -8,4 +8,4 @@
   notify: restart kubelet
 
 - name: Kubeadm | Master | Restart kubelet
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers

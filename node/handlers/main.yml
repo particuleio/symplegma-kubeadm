@@ -1,6 +1,6 @@
 ---
 - name: Kubeadm | Perform a daemon reload and restart Kubelet
-  systemd:
+  ansible.builtin.systemd:
     state: restarted
     name: kubelet.service
     daemon_reload: true

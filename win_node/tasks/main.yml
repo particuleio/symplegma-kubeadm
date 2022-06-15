@@ -1,8 +1,8 @@
 ---
-- include_tasks: check.yml
+- ansible.builtin.include_tasks: check.yml
 
-- include_tasks: kubeadm.yml
+- ansible.builtin.include_tasks: kubeadm.yml
   when:
-  - (ansible_fqdn|lower) not in nodes.stdout
-  - (ansible_hostname|lower) not in nodes.stdout
-  - (inventory_hostname|lower) not in nodes.stdout
+    - (ansible_fqdn|lower) not in nodes.stdout
+    - (ansible_hostname|lower) not in nodes.stdout
+    - (inventory_hostname|lower) not in nodes.stdout

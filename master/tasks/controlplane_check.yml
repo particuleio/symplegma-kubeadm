@@ -1,6 +1,6 @@
 ---
 - name: Kubeadm | Master | Check if Kubernetes control plane is UP
-  shell: |
+  ansible.builtin.shell: |
     #!/bin/bash
     CONTAINERS=(kube-proxy etcd kube-controller-manager kube-apiserver kube-scheduler)
     for container in "${CONTAINERS[@]}"
@@ -17,7 +17,7 @@
   changed_when: false
 
 - name: Kubeadm | Master | Check if Kubernetes control plane is UP on other nodes
-  shell: |
+  ansible.builtin.shell: |
     #!/bin/bash
     CONTAINERS=(kube-proxy etcd kube-controller-manager kube-apiserver kube-scheduler)
     for container in "${CONTAINERS[@]}"

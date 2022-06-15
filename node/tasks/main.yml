@@ -1,10 +1,10 @@
 ---
-- include_tasks: check.yml
+- ansible.builtin.include_tasks: check.yml
 
-- include_tasks: nginx.yml
+- ansible.builtin.include_tasks: nginx.yml
   when: kubernetes_api_server_address is not defined
 
-- include_tasks: kubeadm.yml
+- ansible.builtin.include_tasks: kubeadm.yml
   when:
-  - ansible_fqdn not in nodes.stdout
-  - ansible_hostname not in nodes.stdout
+    - ansible_fqdn not in nodes.stdout
+    - ansible_hostname not in nodes.stdout
