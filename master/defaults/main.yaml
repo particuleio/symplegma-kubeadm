@@ -3,13 +3,13 @@ bin_dir: /opt/bin
 
 cri_socket: unix:///run/containerd/containerd.sock
 
-kubeadm_version: v1.24.1
+kubeadm_version: v1.32.0
 
 kubernetes_version: "{{ kubeadm_version }}"
 
 kubernetes_api_endpoint_port: 6443
 
-kubernetes_binaries_url: https://storage.googleapis.com/kubernetes-release/release/{{ kubeadm_version }}/bin/linux/amd64
+kubernetes_binaries_url: https://dl.k8s.io/{{ kubeadm_version }}/bin/linux/amd64
 
 kubeadm_exec_dir: /root
 kubeadm_sync_dirs:
@@ -42,5 +42,3 @@ kubeadm_cluster_name: symplegma
 kubeadm_force_init: false
 
 kubeadm_mark_control_plane: true
-
-systemd_cgroup: false

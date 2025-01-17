@@ -16,9 +16,6 @@ nodeRegistration:
 ---
 apiVersion: kubelet.config.k8s.io/v1beta1
 kind: KubeletConfiguration
-{% if systemd_cgroup %}
-cgroupDriver: systemd
-{% endif %}
 {% if kubeadm_kubelet_component_config %}
 {{ kubeadm_kubelet_component_config }}
 {% endif %}

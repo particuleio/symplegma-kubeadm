@@ -3,7 +3,7 @@ bin_dir: /opt/bin
 
 cri_socket: unix:///run/containerd/containerd.sock
 
-kubeadm_version: v1.24.1
+kubeadm_version: v1.32.0
 
 kubeadm_exec_dir: /root
 
@@ -17,12 +17,10 @@ nginx_memory_requests: 32M
 nginx_cpu_requests: 25m
 
 nginx_image_repo: docker.io/library/nginx
-nginx_image_tag: 1.21-alpine
+nginx_image_tag: 1.27-alpine
 nginx_image_pull_policy: IfNotPresent
 
 nginx_config_dir: /etc/nginx
 
 kubeadm_kubelet_extra_args: {}
 kubeadm_kubelet_component_config: {}
-
-systemd_cgroup: false
