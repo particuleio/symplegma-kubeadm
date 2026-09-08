@@ -1,12 +1,19 @@
 ---
-- ansible.builtin.include_tasks: controlplane_check.yml
+- name: Include controlplane_check.yml
+  ansible.builtin.include_tasks: controlplane_check.yml
 
-- ansible.builtin.include_tasks: etcd_cleanup.yml
+- name: Include etcd_cleanup.yml
+
+  ansible.builtin.include_tasks: etcd_cleanup.yml
   when:
     - kubernetes_control_plane_local.rc == 2
     - kubernetes_control_plane_delegated is success
     - groups['master']|length > 1
 
-- ansible.builtin.include_tasks: kubeadm.yml
+- name: Include kubeadm.yml
 
-- ansible.builtin.include_tasks: kubeconfig.yml
+  ansible.builtin.include_tasks: kubeadm.yml
+
+- name: Include kubeconfig.yml
+
+  ansible.builtin.include_tasks: kubeconfig.yml

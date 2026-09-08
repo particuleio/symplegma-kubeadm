@@ -13,6 +13,7 @@
       - /etc/kubernetes/pki/front-proxy-ca.key
       - /etc/kubernetes/pki/etcd/ca.crt
       - /etc/kubernetes/pki/etcd/ca.key
+  no_log: true
   register: slurp_certs
   run_once: true
   ignore_errors: true
@@ -23,7 +24,8 @@
     content: "{{ item.content | b64decode }}"
     owner: root
     group: root
-    mode: 0600
+    mode: "0600"
+  no_log: true
   loop: "{{ slurp_certs.results }}"
-  when: ( item.skipped is defined and not item.skipped ) or ( item.failed is defined and not item.failed)
+  when: item.content is defined
   failed_when: false

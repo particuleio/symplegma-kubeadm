@@ -1,5 +1,8 @@
-# vim: ft=yaml
 ---
+profile: moderate
+exclude_paths:
+  - .venv/
+  - .ansible/
+  - .github/
 skip_list:
- - 'role-name'  # Role name {} does not match ``^[a-z][a-z0-9_]+$`` pattern
- - 'no-changed-when'  # Commands should not change things if nothing needs doing
+  - role-name[path]

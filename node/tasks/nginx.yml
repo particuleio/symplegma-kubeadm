@@ -3,7 +3,7 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: 0700
+    mode: "0700"
     owner: root
   with_items:
     - "{{ kubernetes_manifests_dir }}"
@@ -14,7 +14,7 @@
     src: nginx.conf.j2
     dest: "/etc/nginx/nginx.conf"
     owner: root
-    mode: 0644
+    mode: "0644"
   register: nginx_config
 
 - name: Kubeadm | Node | Write nginx-proxy static pod

@@ -1,6 +1,26 @@
 # symplegma-kubeadm
 
-[![Build Status](https://github.com/particuleio/symplegma-kubeadm/workflows/symplegma-kubeadm/badge.svg)](https://github.com/particuleio/symplegma-kubeadm/workflows/symplegma-kubeadm/)
-[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+[![CI](https://github.com/particuleio/symplegma-kubeadm/actions/workflows/ansible.yml/badge.svg)](https://github.com/particuleio/symplegma-kubeadm/actions/workflows/ansible.yml)
 
-Ansible role to boostrap Kubeadm Kubernetes cluster
+Linux role for [Symplegma](https://github.com/particuleio/symplegma).
+Requires Ansible core 2.21 or newer. See [CHANGELOG.md](CHANGELOG.md) for versions,
+breaking changes and upgrade constraints.
+
+## Development
+
+Install [mise](https://mise.jdx.dev/), then run:
+
+```sh
+mise install
+just setup
+just lint
+```
+
+uv installs Python 3.14.7 and the locked dependencies. Without mise/just, use
+`uv sync --locked` and `uv run --locked pre-commit run --all-files`.
+
+## Releases
+
+Prepare a reviewed, signed pull request with a changelog entry. Publish its
+release tag only after required checks and review pass and the change is merged.
+Symplegma's requirements must point to an existing published tag.

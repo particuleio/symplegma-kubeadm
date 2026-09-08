@@ -13,15 +13,29 @@
     {{ bin_dir }}/kubeadm token create --ttl 5m
   args:
     chdir: "{{ kubeadm_exec_dir }}"
+  no_log: true
   register: kubeadm_token
   delegate_to: "{{ groups['master'] | random(seed=inventory_hostname) }}"
+
+- name: Kubeadm | Node | Read the cluster CA public key hash
+  ansible.builtin.shell: |
+    set -o pipefail
+    openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt -noout |
+      openssl pkey -pubin -outform DER |
+      openssl dgst -sha256 -hex | awk '{print $NF}'
+  args:
+    executable: /bin/bash
+  register: kubeadm_ca_hash
+  changed_when: false
+  delegate_to: "{{ groups['master'] | first }}"
 
 - name: Kubeadm | Node | Copy kubeadm init config file
   ansible.builtin.template:
     src: kubeadm-config.yaml.j2
     dest: "{{ kubeadm_exec_dir }}/kubeadm-config.yaml"
-    mode: "u+rw,g+r,o+r"
+    mode: "0600"
   register: kubeadm_config
+  no_log: true
 
 - name: Kubeadm | Node | Join cluster
   ansible.builtin.command: |

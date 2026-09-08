@@ -1,10 +1,33 @@
 ---
-- ansible.builtin.include_tasks: check.yml
+- name: Include check.yml
+  ansible.builtin.include_tasks: check.yml
 
-- ansible.builtin.include_tasks: nginx.yml
+- name: Include nginx.yml
+
+  ansible.builtin.include_tasks: nginx.yml
   when: kubernetes_api_server_address is not defined
 
-- ansible.builtin.include_tasks: kubeadm.yml
+- name: Include kubeadm.yml
+
+  ansible.builtin.include_tasks: kubeadm.yml
   when:
-    - ansible_fqdn not in nodes.stdout
-    - ansible_hostname not in nodes.stdout
+    - ansible_facts.fqdn not in nodes.stdout_lines
+    - ansible_facts.hostname not in nodes.stdout_lines
+
+- name: Kubeadm | Node | Read the generated kubelet configuration
+  ansible.builtin.slurp:
+    src: /var/lib/kubelet/config.yaml
+  register: node_kubelet_config
+  when: kubeadm_kubelet_component_config | length > 0
+
+- name: Kubeadm | Node | Apply node-specific kubelet configuration
+  ansible.builtin.copy:
+    content: >-
+      {{ (node_kubelet_config.content | b64decode | from_yaml)
+         | combine((kubeadm_kubelet_component_config | from_yaml)
+           if kubeadm_kubelet_component_config is string else kubeadm_kubelet_component_config,
+           recursive=True) | to_nice_yaml(indent=2) }}
+    dest: /var/lib/kubelet/config.yaml
+    mode: "0644"
+  when: kubeadm_kubelet_component_config | length > 0
+  notify: restart kubelet

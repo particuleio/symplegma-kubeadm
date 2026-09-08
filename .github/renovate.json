@@ -1,0 +1,39 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests",
+    ":semanticCommits"
+  ],
+  "ignoreUnstable": true,
+  "automerge": false,
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "ansible",
+        "ansible-core"
+      ],
+      "groupName": "Ansible",
+      "rangeStrategy": "pin"
+    },
+    {
+      "matchPackageNames": [
+        "containers/crun"
+      ],
+      "enabled": false,
+      "description": "Update binary version and per-architecture checksums together."
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^(?:master/|node/)?defaults/main\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "(?:^|\\n)# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\w+: (?<currentValue>\\S+)"
+      ],
+      "versioningTemplate": "semver"
+    }
+  ]
+}

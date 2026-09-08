@@ -62,7 +62,7 @@
   ansible.builtin.shell: |
     set -o pipefail
     {{ bin_dir }}/etcdctl \
-      --peer-urls=https://{{ ansible_env.COREOS_PRIVATE_IPV4 | default(ansible_default_ipv4.address) }}:2380 \
+      --peer-urls=https://{{ ansible_facts.env.COREOS_PRIVATE_IPV4 | default(ansible_facts.default_ipv4.address) }}:2380 \
       member add {{ inventory_hostname }}
   environment:
     ETCDCTL_API: '3'

@@ -1,31 +1,42 @@
+{% macro extra_args(value, spaces) -%}
+{% set args = (value | from_yaml) if value is string else value %}
+{% set args = (args | dict2items(key_name='name', value_name='value')) if args is mapping else args %}
+{% for arg in args %}
+{{ ('- name: ' ~ (arg.name | to_json)) | indent(spaces, true) }}
+{{ ('  value: ' ~ (arg.value | string | to_json)) | indent(spaces, true) }}
+{% endfor %}
+{%- endmacro %}
+{% set local_address = ansible_facts.env.COREOS_PRIVATE_IPV4 | default(apiserver_local_address | default(ansible_facts.default_ipv4.address)) %}
+{% set etcd_address = ansible_facts.env.COREOS_PRIVATE_IPV4 | default(etcd_local_address | default(ansible_facts.default_ipv4.address)) %}
 ---
-apiVersion: kubeadm.k8s.io/v1beta3
+apiVersion: kubeadm.k8s.io/v1beta4
 kind: ClusterConfiguration
 kubernetesVersion: {{ kubernetes_version }}
 clusterName: {{ kubeadm_cluster_name }}
 apiServer:
   certSANs:
-{% if ansible_env.COREOS_PUBLIC_IPV4 is defined %}
-  - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
-{% endif %}
-  - {{ ansible_hostname }}
-  - {{ ansible_fqdn }}
-  - {{ inventory_hostname }}
-  - {{ ansible_env.COREOS_PRIVATE_IPV4 | default(apiserver_local_address | default(ansible_default_ipv4.address)) }}
+  - {{ ansible_facts.hostname | to_json }}
+  - {{ ansible_facts.fqdn | to_json }}
+  - {{ inventory_hostname | to_json }}
+  - {{ local_address | to_json }}
   - localhost
   - 127.0.0.1
-{% if kubeadm_api_server_cert_extra_sans %}
-  {{ kubeadm_api_server_cert_extra_sans | indent(2) }}
+{% if ansible_facts.env.COREOS_PUBLIC_IPV4 is defined %}
+  - {{ ansible_facts.env.COREOS_PUBLIC_IPV4 | to_json }}
 {% endif %}
+{% set sans = (kubeadm_api_server_cert_extra_sans | from_yaml) if kubeadm_api_server_cert_extra_sans is string else kubeadm_api_server_cert_extra_sans %}
+{% for san in sans %}
+  - {{ san | to_json }}
+{% endfor %}
 {% if kubeadm_api_server_extra_args %}
   extraArgs:
-    {{ kubeadm_api_server_extra_args | indent (4)}}
+{{ extra_args(kubeadm_api_server_extra_args, 4) }}
 {% endif %}
 {% if kubeadm_api_server_extra_volumes %}
   extraVolumes:
-    {{ kubeadm_api_server_extra_volumes | indent(4) }}
+{{ ((kubeadm_api_server_extra_volumes | from_yaml) if kubeadm_api_server_extra_volumes is string else kubeadm_api_server_extra_volumes) | to_nice_yaml(indent=2) | indent(4, true) }}
 {% endif %}
-controlPlaneEndpoint: {{ kubernetes_api_server_address | default(ansible_env.COREOS_PRIVATE_IPV4 | default(apiserver_local_address | default(ansible_default_ipv4.address))) }}:{{ kubernetes_api_server_port | default(kubernetes_api_endpoint_port) }}
+controlPlaneEndpoint: {{ (kubernetes_api_server_address | default(local_address)) ~ ':' ~ (kubernetes_api_server_port | default(kubernetes_api_endpoint_port) | string) }}
 etcd:
   local:
 {% if kubeadm_etcd_image_repo is defined %}
@@ -35,36 +46,40 @@ etcd:
     imageTag: {{ kubeadm_etcd_image_tag }}
 {% endif %}
     extraArgs:
-      name: "{{ inventory_hostname }}"
-      listen-client-urls: "https://127.0.0.1:2379,https://{{ ansible_env.COREOS_PRIVATE_IPV4 | default(etcd_local_address | default(ansible_default_ipv4.address)) }}:2379"
-      advertise-client-urls: "https://{{ ansible_env.COREOS_PRIVATE_IPV4 | default(etcd_local_address | default(ansible_default_ipv4.address)) }}:2379"
-      listen-peer-urls: "https://{{ ansible_env.COREOS_PRIVATE_IPV4 | default(etcd_local_address | default(ansible_default_ipv4.address)) }}:2380"
-      initial-advertise-peer-urls: "https://{{ ansible_env.COREOS_PRIVATE_IPV4 | default(etcd_local_address | default(ansible_default_ipv4.address)) }}:2380"
-      {% for host in groups['master'] -%}
-      {% if loop.first %}initial-cluster: "{% endif %}{{ hostvars[host].inventory_hostname }}=https://{{ hostvars[host].ansible_env.COREOS_PRIVATE_IPV4 | default(hostvars[host].etcd_local_address | default(hostvars[host].ansible_default_ipv4.address)) }}:2380{% if not loop.last %},{% else %}"{% endif %}
-      {%- endfor %}
-
-      {% if (etcd_health is defined) and (kubernetes_control_plane_local.rc == 2) %}initial-cluster-state: existing{% endif %}
-
+    - name: name
+      value: {{ inventory_hostname | to_json }}
+    - name: listen-client-urls
+      value: "https://127.0.0.1:2379,https://{{ etcd_address }}:2379"
+    - name: advertise-client-urls
+      value: "https://{{ etcd_address }}:2379"
+    - name: listen-peer-urls
+      value: "https://{{ etcd_address }}:2380"
+    - name: initial-advertise-peer-urls
+      value: "https://{{ etcd_address }}:2380"
+    - name: initial-cluster
+      value: "{% for host in groups['master'] %}{{ host }}=https://{{ hostvars[host].ansible_facts.env.COREOS_PRIVATE_IPV4 | default(hostvars[host].etcd_local_address | default(hostvars[host].ansible_facts.default_ipv4.address)) }}:2380{% if not loop.last %},{% endif %}{% endfor %}"
+{% if (etcd_health is defined) and (kubernetes_control_plane_local.rc == 2) %}
+    - name: initial-cluster-state
+      value: existing
+{% endif %}
     serverCertSANs:
-      - {{ ansible_hostname }}
-      - {{ ansible_fqdn }}
-      - {{ inventory_hostname }}
-      - {{ ansible_env.COREOS_PRIVATE_IPV4 | default(etcd_local_address | default(ansible_default_ipv4.address)) }}
-{% if ansible_env.COREOS_PUBLIC_IPV4 is defined %}
-      - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
+    - {{ ansible_facts.hostname | to_json }}
+    - {{ ansible_facts.fqdn | to_json }}
+    - {{ inventory_hostname | to_json }}
+    - {{ etcd_address | to_json }}
+    - localhost
+    - 127.0.0.1
+{% if ansible_facts.env.COREOS_PUBLIC_IPV4 is defined %}
+    - {{ ansible_facts.env.COREOS_PUBLIC_IPV4 | to_json }}
 {% endif %}
-      - localhost
-      - 127.0.0.1
     peerCertSANs:
-      - {{ ansible_hostname }}
-      - {{ ansible_fqdn }}
-      - {{ inventory_hostname }}
-      - {{ ansible_env.COREOS_PRIVATE_IPV4 | default(etcd_local_address | default(ansible_default_ipv4.address)) }}
-{% if ansible_env.COREOS_PUBLIC_IPV4 is defined %}
-      - {{ ansible_env.COREOS_PUBLIC_IPV4 }}
+    - {{ ansible_facts.hostname | to_json }}
+    - {{ ansible_facts.fqdn | to_json }}
+    - {{ inventory_hostname | to_json }}
+    - {{ etcd_address | to_json }}
+{% if ansible_facts.env.COREOS_PUBLIC_IPV4 is defined %}
+    - {{ ansible_facts.env.COREOS_PUBLIC_IPV4 | to_json }}
 {% endif %}
-
 networking:
   podSubnet: {{ kubeadm_pod_subnet }}
   dnsDomain: {{ kubeadm_service_dns_domain }}
@@ -72,45 +87,41 @@ networking:
 controllerManager:
 {% if kubeadm_controller_manager_extra_args %}
   extraArgs:
-    {{ kubeadm_controller_manager_extra_args | indent (4) }}
+{{ extra_args(kubeadm_controller_manager_extra_args, 4) }}
 {% endif %}
 {% if kubeadm_controller_manager_extra_volumes %}
   extraVolumes:
-    {{ kubeadm_controller_manager_extra_volumes | indent(4) }}
+{{ ((kubeadm_controller_manager_extra_volumes | from_yaml) if kubeadm_controller_manager_extra_volumes is string else kubeadm_controller_manager_extra_volumes) | to_nice_yaml(indent=2) | indent(4, true) }}
 {% endif %}
 scheduler:
 {% if kubeadm_scheduler_extra_args %}
   extraArgs:
-    {{ kubeadm_scheduler_extra_args | indent (4) }}
+{{ extra_args(kubeadm_scheduler_extra_args, 4) }}
 {% endif %}
 {% if kubeadm_scheduler_extra_volumes %}
   extraVolumes:
-    {{ kubeadm_scheduler_extra_volumes | indent(4) }}
+{{ ((kubeadm_scheduler_extra_volumes | from_yaml) if kubeadm_scheduler_extra_volumes is string else kubeadm_scheduler_extra_volumes) | to_nice_yaml(indent=2) | indent(4, true) }}
 {% endif %}
 ---
-apiVersion: kubeadm.k8s.io/v1beta3
+apiVersion: kubeadm.k8s.io/v1beta4
 kind: InitConfiguration
 localAPIEndpoint:
   bindPort: {{ kubernetes_api_endpoint_port }}
-  advertiseAddress: {{ ansible_env.COREOS_PRIVATE_IPV4 | default(apiserver_local_address | default(ansible_default_ipv4.address)) }}
+  advertiseAddress: {{ local_address }}
 nodeRegistration:
   criSocket: {{ cri_socket }}
 {% if kubeadm_kubelet_extra_args %}
   kubeletExtraArgs:
-    {{ kubeadm_kubelet_extra_args | indent (4) }}
+{{ extra_args(kubeadm_kubelet_extra_args, 4) }}
 {% endif %}
 ---
 apiVersion: kubelet.config.k8s.io/v1beta1
 kind: KubeletConfiguration
-{% if systemd_cgroup %}
-cgroupDriver: systemd
-{% endif %}
-{% if kubeadm_kubelet_component_config %}
-{{ kubeadm_kubelet_component_config}}
-{% endif %}
+{% set kubelet_config = (kubeadm_kubelet_component_config | from_yaml) if kubeadm_kubelet_component_config is string else kubeadm_kubelet_component_config %}
+{{ {'cgroupDriver': 'systemd' if systemd_cgroup else 'cgroupfs'} | combine(kubelet_config) | to_nice_yaml(indent=2) }}
 ---
 apiVersion: kubeproxy.config.k8s.io/v1alpha1
 kind: KubeProxyConfiguration
 {% if kubeadm_kube_proxy_component_config %}
-{{ kubeadm_kube_proxy_component_config}}
+{{ ((kubeadm_kube_proxy_component_config | from_yaml) if kubeadm_kube_proxy_component_config is string else kubeadm_kube_proxy_component_config) | to_nice_yaml(indent=2) }}
 {% endif %}

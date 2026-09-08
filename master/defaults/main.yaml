@@ -3,13 +3,15 @@ bin_dir: /opt/bin
 
 cri_socket: unix:///run/containerd/containerd.sock
 
-kubeadm_version: v1.32.2
+# renovate: datasource=github-releases depName=kubernetes/kubernetes
+kubeadm_version: v1.37.0
 
 kubernetes_version: "{{ kubeadm_version }}"
 
 kubernetes_api_endpoint_port: 6443
 
-kubernetes_binaries_url: https://dl.k8s.io/{{ kubeadm_version }}/bin/linux/amd64
+kubernetes_arch: "{{ {'x86_64': 'amd64', 'aarch64': 'arm64'}[ansible_facts['architecture']] }}"
+kubernetes_binaries_url: https://dl.k8s.io/release/{{ kubeadm_version }}/bin/linux/{{ kubernetes_arch }}
 
 kubeadm_exec_dir: /root
 kubeadm_sync_dirs:
@@ -22,17 +24,17 @@ kubeadm_pod_subnet: 192.168.0.0/16
 kubeadm_service_subnet: 10.96.0.0/12
 kubeadm_service_dns_domain: cluster.local
 
-kubeadm_api_server_extra_args: {}
-kubeadm_api_server_extra_volumes: {}
-kubeadm_api_server_cert_extra_sans: {}
+kubeadm_api_server_extra_args: []
+kubeadm_api_server_extra_volumes: []
+kubeadm_api_server_cert_extra_sans: []
 
-kubeadm_controller_manager_extra_args: {}
-kubeadm_controller_manager_extra_volumes: {}
+kubeadm_controller_manager_extra_args: []
+kubeadm_controller_manager_extra_volumes: []
 
-kubeadm_scheduler_extra_args: {}
-kubeadm_scheduler_extra_volumes: {}
+kubeadm_scheduler_extra_args: []
+kubeadm_scheduler_extra_volumes: []
 
-kubeadm_kubelet_extra_args: {}
+kubeadm_kubelet_extra_args: []
 kubeadm_kubelet_component_config: {}
 
 kubeadm_kube_proxy_component_config: {}
